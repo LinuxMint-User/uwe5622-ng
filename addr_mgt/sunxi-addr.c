@@ -308,7 +308,6 @@ ATTRIBUTE_GROUPS(addr_class);
 
 static struct class addr_class = {
 	.name = "addr_mgt",
-	.owner = THIS_MODULE,
 	.class_groups = addr_class_groups,
 };
 
