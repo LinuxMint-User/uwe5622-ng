@@ -1385,7 +1385,7 @@ int sprdwl_scan(struct sprdwl_priv *priv, u8 vif_ctx_id,
 
 	struct sprdwl_5g_chn {
 		u16 n_5g_chn;
-		u16 chns[0];
+		u16 chns[];
 	} *ext_5g;
 
 	chns_len_5g = chn_count_5g * sizeof(*chns_5g);
@@ -3679,7 +3679,7 @@ void sprdwl_set_tlv_elmt(u8 *addr, u16 type, u16 len, u8 *data)
 
 	p->type = type;
 	p->len = len;
-	memcpy(p->data, data, len);
+	memcpy((u8 *)p + sizeof(*p), data, len);
 }
 
 int sprdwl_set_wowlan(struct sprdwl_priv *priv, int subcmd, void *pad, int pad_len)

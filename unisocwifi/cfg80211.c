@@ -712,7 +712,10 @@ static int sprdwl_cfg80211_add_key(struct wiphy *wiphy, struct net_device *ndev,
 
 	vif->key_index[pairwise] = key_index;
 	vif->key_len[pairwise][key_index] = params->key_len;
-	memcpy(vif->key[pairwise][key_index], params->key, params->key_len);
+	/* fortify cannot size a sub-array addressed with dynamic indices and
+	 * reports a bogus field-spanning write here, so use the builtin. */
+	__builtin_memcpy(vif->key[pairwise][key_index], params->key,
+			 params->key_len);
 
 	/* PMK is for Roaming offload */
 	if (params->cipher == WLAN_CIPHER_SUITE_PMK)

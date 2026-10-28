@@ -378,7 +378,7 @@ struct sprdwl_cmd_add_key {
 	u8 keyseq[16];
 	u8 cypher_type;
 	u8 key_len;
-	u8 value[0];
+	u8 value[];
 } __packed;
 
 struct sprdwl_cmd_del_key {
@@ -408,7 +408,7 @@ struct sprdwl_cmd_set_ie {
 #define	SPRDWL_IE_BEACON_TAIL		6
 	u8 type;
 	__le16 len;
-	u8 data[0];
+	u8 data[];
 } __packed;
 
 /* WIFI_CMD_START_AP */
@@ -580,7 +580,7 @@ struct sprdwl_cmd_cqm_rssi {
 struct sprdwl_cmd_roam_offload_data {
 	u8 type;
 	u8 len;
-	u8 value[0];
+	u8 value[];
 } __packed;
 
 struct sprdwl_cmd_tdls_mgmt {
@@ -637,7 +637,7 @@ struct sprdwl_cmd_tdls_channel_switch {
 struct sprdwl_cmd_set_mac_addr {
 	u8 sub_type;
 	u8 num;
-	u8 mac[0];
+	u8 mac[];
 } __packed;
 
 struct sprdwl_cmd_rsp_state_code {
