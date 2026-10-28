@@ -338,9 +338,10 @@ static int addr_mgt_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static void addr_mgt_remove(struct platform_device *pdev)
+static wcn_remove_ret addr_mgt_remove(struct platform_device *pdev)
 {
 	class_unregister(&addr_class);
+	wcn_remove_return;
 }
 
 static struct platform_driver addr_mgt_driver = {

@@ -29,6 +29,7 @@
 #include <linux/of_device.h>
 #endif
 #include <linux/compat.h>
+#include "compat.h"
 #include <linux/tty_flip.h>
 #include <linux/kthread.h>
 #include <linux/interrupt.h>
@@ -468,8 +469,8 @@ static  int sdio_data_transmit(uint8_t *data, size_t count)
 	return mtty_write(NULL, data, count);
 }
 
-static ssize_t mtty_write_plus(struct tty_struct *tty,
-		  const unsigned char *buf, size_t count)
+static wcn_tty_write_ret mtty_write_plus(struct tty_struct *tty,
+		  const unsigned char *buf, wcn_tty_write_len count)
 {
 	return sitm_write(buf, (int)count, sdio_data_transmit);
 }
@@ -781,7 +782,7 @@ static void  mtty_shutdown(struct platform_device *pdev)
 }
 #endif
 
-static void mtty_remove(struct platform_device *pdev)
+static wcn_remove_ret mtty_remove(struct platform_device *pdev)
 {
 	struct mtty_device *mtty = platform_get_drvdata(pdev);
 
@@ -800,6 +801,7 @@ static void mtty_remove(struct platform_device *pdev)
 //#endif
 	bluesleep_exit();
 
+	wcn_remove_return;
 }
 
 static const struct of_device_id mtty_match_table[] = {

@@ -23,6 +23,7 @@
 #include <linux/of.h>
 #include "sprdwl.h"
 #include "wl_intf.h"
+#include "compat.h"
 #include "wl_core.h"
 #include "tx_msg.h"
 #include "rx_msg.h"
@@ -779,7 +780,7 @@ err:
 	return ret;
 }
 
-static void sprdwl_remove(struct platform_device *pdev)
+static wcn_remove_ret sprdwl_remove(struct platform_device *pdev)
 {
 	struct sprdwl_intf *intf = platform_get_drvdata(pdev);
 	struct sprdwl_priv *priv = intf->priv;
@@ -800,6 +801,7 @@ static void sprdwl_remove(struct platform_device *pdev)
 	stop_marlin(MARLIN_WIFI);
 	wl_info("%s\n", __func__);
 
+	wcn_remove_return;
 }
 
 static const struct of_device_id sprdwl_of_match[] = {

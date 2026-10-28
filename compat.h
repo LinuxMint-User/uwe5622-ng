@@ -115,6 +115,26 @@ typedef const struct genl_split_ops *wcn_genl_ops_t;
 typedef const struct genl_ops *wcn_genl_ops_t;
 #endif
 
+/* ---- tty_operations.write() -------------------------------------------- */
+/* v6.6 changed write() to return ssize_t and take size_t. */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+typedef int wcn_tty_write_ret;
+typedef int wcn_tty_write_len;
+#else
+typedef ssize_t wcn_tty_write_ret;
+typedef size_t wcn_tty_write_len;
+#endif
+
+/* ---- platform_driver.remove() ------------------------------------------ */
+/* v6.11 changed the remove callback to return void. */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 11, 0)
+#define wcn_remove_ret		int
+#define wcn_remove_return	return 0
+#else
+#define wcn_remove_ret		void
+#define wcn_remove_return	return
+#endif
+
 /* ---- cfg80211_ops ------------------------------------------------------ */
 /*
  * change_beacon() switched to struct cfg80211_ap_update in 6.7.
