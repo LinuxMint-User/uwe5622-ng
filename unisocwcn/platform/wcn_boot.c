@@ -1387,8 +1387,8 @@ static int marlin_registsr_bt_wake(struct device *dev)
 		return -EINVAL;
 	}
 
-	ret = devm_gpio_request(dev, bt_wake_host_gpio,
-				"bt-wake-host-gpio");
+	ret = wcn_devm_gpio_request(dev, bt_wake_host_gpio,
+				    "bt-wake-host-gpio");
 	if (ret) {
 		WCN_ERR("bt-wake-host-gpio request err: %d\n",
 			bt_wake_host_gpio);
