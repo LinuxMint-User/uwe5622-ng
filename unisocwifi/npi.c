@@ -25,6 +25,7 @@
 
 #include "sprdwl.h"
 #include "npi.h"
+#include "compat.h"
 
 static int sprdwl_nl_send_generic(struct genl_info *info, u8 attr, u8 cmd,
 				  u32 len, u8 *data);
@@ -104,7 +105,7 @@ static int sprdwl_cmd_set_psm_cap(struct sprdwl_vif *vif)
 	return ret;
 }
 
-static int sprdwl_npi_pre_doit(const struct genl_ops *ops,
+static int sprdwl_npi_pre_doit(wcn_genl_ops_t ops,
 				   struct sk_buff *skb, struct genl_info *info)
 {
 	struct net_device *ndev;
@@ -135,7 +136,7 @@ static int sprdwl_npi_pre_doit(const struct genl_ops *ops,
 	return 0;
 }
 
-static void sprdwl_npi_post_doit(const struct genl_ops *ops,
+static void sprdwl_npi_post_doit(wcn_genl_ops_t ops,
 				 struct sk_buff *skb, struct genl_info *info)
 {
 	if (info->user_ptr[0])

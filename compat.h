@@ -92,6 +92,19 @@
 	container_of(timer, typeof(*(var)), member)
 #endif
 
+/* ---- generic netlink --------------------------------------------------- */
+/*
+ * genl_family pre_doit/post_doit take a const struct genl_split_ops * once
+ * split ops exist; 6.1 still passes const struct genl_ops *.
+ */
+struct genl_ops;
+struct genl_split_ops;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+typedef const struct genl_split_ops *wcn_genl_ops_t;
+#else
+typedef const struct genl_ops *wcn_genl_ops_t;
+#endif
+
 /* ---- cfg80211_ops ------------------------------------------------------ */
 
 #endif /* __UWE5622_COMPAT_H */
