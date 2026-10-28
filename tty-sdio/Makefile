@@ -8,6 +8,8 @@ ifneq ($(UNISOC_BSP_INCLUDE),)
 ccflags-y += -I$(UNISOC_BSP_INCLUDE)
 endif
 
+ccflags-y += -I$(src)/../
+
 sprdbt_tty-objs := \
 	tty.o \
 	rfkill.o \
