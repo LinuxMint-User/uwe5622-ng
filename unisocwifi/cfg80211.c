@@ -35,6 +35,7 @@
 #include "rnd_mac_addr.h"
 #endif
 #include "rx_msg.h"
+#include "compat.h"
 
 #ifdef DFS_MASTER
 #include "11h.h"
@@ -1240,7 +1241,7 @@ void sprdwl_cancel_scan(struct sprdwl_vif *vif)
 
 	if (priv->scan_vif && priv->scan_vif == vif) {
 		if (timer_pending(&priv->scan_timer))
-			del_timer_sync(&priv->scan_timer);
+			wcn_timer_delete_sync(&priv->scan_timer);
 
 		spin_lock_bh(&priv->scan_lock);
 
@@ -1300,7 +1301,7 @@ void sprdwl_scan_done(struct sprdwl_vif *vif, bool abort)
 
 	if (priv->scan_vif && priv->scan_vif == vif) {
 		if (timer_pending(&priv->scan_timer))
-			del_timer_sync(&priv->scan_timer);
+			wcn_timer_delete_sync(&priv->scan_timer);
 
 		spin_lock_bh(&priv->scan_lock);
 		if (priv->scan_request) {
@@ -1359,7 +1360,7 @@ void sprdwl_sched_scan_done(struct sprdwl_vif *vif, bool abort)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
 void sprdwl_scan_timeout(struct timer_list *t)
 {
-	struct sprdwl_priv *priv = from_timer(priv, t, scan_timer);
+	struct sprdwl_priv *priv = wcn_from_timer(priv, t, scan_timer);
 #else
 void sprdwl_scan_timeout(unsigned long data)
 {

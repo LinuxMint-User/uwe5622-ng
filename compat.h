@@ -14,6 +14,7 @@
 #include <linux/gpio.h>
 #include <linux/of.h>
 #include <linux/pm_wakeup.h>
+#include <linux/timer.h>
 #include <linux/types.h>
 
 /* ---- class_create() ---------------------------------------------------- */
@@ -74,5 +75,23 @@
 #define wcn_devm_gpio_request(dev, gpio, label)				\
 	devm_gpio_request_one((dev), (gpio), GPIOF_IN, (label))
 #endif
+
+/* ---- timers ------------------------------------------------------------ */
+/*
+ * del_timer()/del_timer_sync()/from_timer() were removed upstream in favour
+ * of timer_delete()/timer_delete_sync()/container_of().
+ */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 15, 0)
+#define wcn_timer_delete(t)		del_timer(t)
+#define wcn_timer_delete_sync(t)	del_timer_sync(t)
+#define wcn_from_timer(var, timer, member) from_timer(var, timer, member)
+#else
+#define wcn_timer_delete(t)		timer_delete(t)
+#define wcn_timer_delete_sync(t)	timer_delete_sync(t)
+#define wcn_from_timer(var, timer, member)				\
+	container_of(timer, typeof(*(var)), member)
+#endif
+
+/* ---- cfg80211_ops ------------------------------------------------------ */
 
 #endif /* __UWE5622_COMPAT_H */

@@ -22,6 +22,7 @@
 #include "wl_intf.h"
 #include "qos.h"
 #include "debug.h"
+#include "compat.h"
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
 static void ba_reorder_timeout(struct timer_list *t);
@@ -108,7 +109,7 @@ static inline void mod_reorder_timer(struct rx_ba_node *ba_node)
 		mod_timer(&ba_node->reorder_timer,
 			  jiffies + RX_BA_LOSS_RECOVERY_TIMEOUT);
 	} else {
-		del_timer(&ba_node->reorder_timer);
+		wcn_timer_delete(&ba_node->reorder_timer);
 		ba_node->timeout_cnt = 0;
 	}
 }
@@ -436,7 +437,7 @@ static void reorder_msdu_process(struct sprdwl_rx_ba_entry *ba_entry,
 			}
 		} else if (unlikely(!ba_node_desc->buff_cnt)) {
 			/* Should never happen */
-			del_timer(&ba_node->reorder_timer);
+			wcn_timer_delete(&ba_node->reorder_timer);
 			ba_node->timeout_cnt = 0;
 		}
 	} else {
@@ -645,7 +646,7 @@ static void wlan_delba_event(struct sprdwl_rx_ba_entry *ba_entry,
 		return;
 	}
 
-	del_timer_sync(&ba_node->reorder_timer);
+	wcn_timer_delete_sync(&ba_node->reorder_timer);
 	spin_lock_bh(&ba_node->ba_node_lock);
 	if (ba_node->active) {
 		ba_node_desc = ba_node->rx_ba;
@@ -876,7 +877,7 @@ void sprdwl_reorder_deinit(struct sprdwl_rx_ba_entry *ba_entry)
 			continue;
 
 		hlist_for_each_entry_safe(ba_node, node, head, hlist) {
-			del_timer_sync(&ba_node->reorder_timer);
+			wcn_timer_delete_sync(&ba_node->reorder_timer);
 			spin_lock_bh(&ba_node->ba_node_lock);
 			ba_node->active = 0;
 			flush_reorder_buffer(ba_node->rx_ba);
@@ -910,7 +911,7 @@ get_first_seqno_in_buff(struct rx_ba_node_desc *ba_node_desc)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
 static void ba_reorder_timeout(struct timer_list *t)
 {
-	struct rx_ba_node *ba_node = from_timer(ba_node, t, reorder_timer);
+	struct rx_ba_node *ba_node = wcn_from_timer(ba_node, t, reorder_timer);
 #else
 static void ba_reorder_timeout(unsigned long data)
 {
@@ -983,7 +984,7 @@ void peer_entry_delba(void *hw_intf, unsigned char lut_index)
 		if (ba_node) {
 			wl_info("%s: del ba lut_index: %d, tid %d\n",
 				__func__, lut_index, tid);
-			del_timer_sync(&ba_node->reorder_timer);
+			wcn_timer_delete_sync(&ba_node->reorder_timer);
 			spin_lock_bh(&ba_node->ba_node_lock);
 			if (ba_node->active) {
 				ba_node_desc = ba_node->rx_ba;
