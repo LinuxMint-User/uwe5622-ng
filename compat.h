@@ -25,6 +25,13 @@
 #define wcn_class_create(name)		class_create(name)
 #endif
 
+/* v6.4 made the class passed to class attribute callbacks const. */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 4, 0)
+typedef struct class wcn_class_t;
+#else
+typedef const struct class wcn_class_t;
+#endif
+
 /* ---- wakeup_source create/add/remove/destroy --------------------------- */
 /*
  * Upstream only keeps wakeup_source_register()/wakeup_source_unregister().

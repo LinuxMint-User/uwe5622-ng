@@ -15,6 +15,8 @@
 #include <linux/of.h>
 #include <linux/platform_device.h>
 
+#include "compat.h"
+
 #define ADDR_MGT_DBG(fmt, arg...) printk(KERN_DEBUG "[ADDR_MGT] %s: " fmt "\n",\
 				__func__, ## arg)
 #define ADDR_MGT_ERR(fmt, arg...) printk(KERN_ERR "[ADDR_MGT] %s: " fmt "\n",\
@@ -40,7 +42,7 @@
 #define IS_TYPE_INVALID(x)  ((x < TYPE_ANY) || (x > TYPE_RAND))
 
 #define ADDR_CLASS_ATTR_ADD(name) \
-static ssize_t addr_##name##_show(struct class *class, \
+static ssize_t addr_##name##_show(wcn_class_t *class, \
 		struct class_attribute *attr, char *buffer) \
 { \
 	char addr[ADDR_STR_LEN]; \
@@ -48,7 +50,7 @@ static ssize_t addr_##name##_show(struct class *class, \
 		return 0; \
 	return sprintf(buffer, "%.17s\n", addr); \
 } \
-static ssize_t addr_##name##_store(struct class *class, \
+static ssize_t addr_##name##_store(wcn_class_t *class, \
 		struct class_attribute *attr, \
 		const char *buffer, size_t count) \
 { \
@@ -274,7 +276,7 @@ static int addr_init(struct platform_device *pdev)
 	return 0;
 }
 
-static ssize_t summary_show(struct class *class,
+static ssize_t summary_show(wcn_class_t *class,
 				struct class_attribute *attr, char *buffer)
 {
 	int i = 0, ret = 0;
