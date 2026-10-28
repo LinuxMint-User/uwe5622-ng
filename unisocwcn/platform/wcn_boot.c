@@ -890,58 +890,49 @@ static const struct imageinfo *marlin_judge_images(const unsigned char *buffer)
 static char *load_firmware_data_path(const char *path, loff_t offset,
 	unsigned long int imag_size)
 {
-	int read_len, size, i, opn_num_max = 1;
-	char *buffer = NULL;
-	char *data = NULL;
-	struct file *file;
+	const struct firmware *fw;
+	const char *base;
+	char *buffer;
+	size_t size;
 
 	WCN_DEBUG("%s Enter\n", __func__);
-	file = filp_open(path, O_RDONLY, 0);
-	for (i = 1; i <= opn_num_max; i++) {
-		if (IS_ERR(file)) {
-			WCN_DEBUG("%s: try open file %s,count_num:%d\n",
-				  __func__, path, i);
-			ssleep(1);
-			file = filp_open(path, O_RDONLY, 0);
-		} else
-			break;
+
+	base = kbasename(path);
+	if (!base || !base[0]) {
+		WCN_ERR("%s: invalid firmware path %s\n", __func__, path);
+		return NULL;
 	}
-	if (IS_ERR(file)) {
-		WCN_ERR("%s: open file %s error\n",
-			__func__, path);
+
+	if (request_firmware(&fw, base, NULL)) {
+		WCN_ERR("%s: request firmware %s (path %s) error\n",
+			__func__, base, path);
 		return NULL;
 	}
 	WCN_DEBUG("marlin %s open image file sucessfully\n",
 		  __func__);
-	size = imag_size;
-	buffer = vmalloc(size);
-	if (!buffer) {
-		fput(file);
-		WCN_ERR("no memory for image\n");
+
+	if (offset < 0 || (u64)offset >= fw->size) {
+		WCN_ERR("%s: offset %lld beyond firmware %s size %zu\n",
+			__func__, (long long)offset, base, fw->size);
+		release_firmware(fw);
 		return NULL;
 	}
 
-	data = buffer;
-	do {
-#if KERNEL_VERSION(4, 14, 0) <= LINUX_VERSION_CODE
-		read_len = kernel_read(file, (void *)buffer, size, &offset);
-#else
-		read_len = kernel_read(file, offset, buffer, size);
-#endif
-		if (read_len > 0) {
-			size -= read_len;
-			buffer += read_len;
-		}
-	} while ((read_len > 0) && (size > 0));
-	fput(file);
-	WCN_DEBUG("%s finish read_Len:%d\n", __func__, read_len);
-#if KERNEL_VERSION(4, 14, 0) > LINUX_VERSION_CODE
-	/* kernel_read return value changed. */
-	if (read_len <= 0)
+	buffer = vmalloc(imag_size);
+	if (!buffer) {
+		WCN_ERR("no memory for image\n");
+		release_firmware(fw);
 		return NULL;
-#endif
+	}
 
-	return data;
+	size = min_t(size_t, (size_t)imag_size, fw->size - (size_t)offset);
+	memcpy(buffer, fw->data + offset, size);
+	memset(buffer + size, 0, imag_size - size);
+	WCN_DEBUG("%s finish read_Len:%zu\n", __func__, size);
+
+	release_firmware(fw);
+
+	return buffer;
 }
 
 static int sprdwcn_bus_direct_write_dispack(unsigned int addr, const void *buf,
