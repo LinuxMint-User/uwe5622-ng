@@ -1,4 +1,5 @@
 #include <linux/version.h>
+#include "compat.h"
 #include "bus_common.h"
 #include "sdiohal.h"
 
@@ -255,24 +256,24 @@ void sdiohal_wakelock_init(void)
 {
 	struct sdiohal_data_t *p_data = sdiohal_get_data();
 	/*wakeup_source pointer*/
-	p_data->tx_ws = wakeup_source_create("sdiohal_tx_wakelock");
-	wakeup_source_add(p_data->tx_ws);
-	p_data->rx_ws = wakeup_source_create("sdiohal_rx_wakelock");
-	wakeup_source_add(p_data->rx_ws);
-	p_data->scan_ws = wakeup_source_create("sdiohal_scan_wakelock");
-	wakeup_source_add(p_data->scan_ws);
+	p_data->tx_ws = wcn_wakeup_source_create("sdiohal_tx_wakelock");
+	wcn_wakeup_source_add(p_data->tx_ws);
+	p_data->rx_ws = wcn_wakeup_source_create("sdiohal_rx_wakelock");
+	wcn_wakeup_source_add(p_data->rx_ws);
+	p_data->scan_ws = wcn_wakeup_source_create("sdiohal_scan_wakelock");
+	wcn_wakeup_source_add(p_data->scan_ws);
 }
 
 void sdiohal_wakelock_deinit(void)
 {
 	struct sdiohal_data_t *p_data = sdiohal_get_data();
 	/*wakeup_source pointer*/
-	wakeup_source_remove(p_data->tx_ws);
-	wakeup_source_destroy(p_data->tx_ws);
-	wakeup_source_remove(p_data->rx_ws);
-	wakeup_source_destroy(p_data->rx_ws);
-	wakeup_source_remove(p_data->scan_ws);
-	wakeup_source_destroy(p_data->scan_ws);
+	wcn_wakeup_source_remove(p_data->tx_ws);
+	wcn_wakeup_source_destroy(p_data->tx_ws);
+	wcn_wakeup_source_remove(p_data->rx_ws);
+	wcn_wakeup_source_destroy(p_data->rx_ws);
+	wcn_wakeup_source_remove(p_data->scan_ws);
+	wcn_wakeup_source_destroy(p_data->scan_ws);
 }
 
 /* for callback */

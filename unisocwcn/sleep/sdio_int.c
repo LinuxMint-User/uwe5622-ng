@@ -9,6 +9,7 @@
 #include <linux/spinlock.h>
 #include <marlin_platform.h>
 #include <wcn_bus.h>
+#include "compat.h"
 #include "sdio_int.h"
 #include "slp_mgr.h"
 #include "slp_sdio.h"
@@ -316,8 +317,8 @@ int sdio_pub_int_init(int irq)
 	atomic_set(&flag_pub_int_done, 1);
 
 	/*wakeup_source pointer*/
-	sdio_int.pub_int_ws = wakeup_source_create("pub_int_ws");
-	wakeup_source_add(sdio_int.pub_int_ws);
+	sdio_int.pub_int_ws = wcn_wakeup_source_create("pub_int_ws");
+	wcn_wakeup_source_add(sdio_int.pub_int_ws);
 
 	init_completion(&(sdio_int.pub_int_completion));
 
@@ -349,8 +350,8 @@ int sdio_pub_int_deinit(void)
 	free_irq(sdio_int.pub_int_num, NULL);
 
 	/*wakeup_source pointer*/
-	wakeup_source_remove(sdio_int.pub_int_ws);
-	wakeup_source_destroy(sdio_int.pub_int_ws);
+	wcn_wakeup_source_remove(sdio_int.pub_int_ws);
+	wcn_wakeup_source_destroy(sdio_int.pub_int_ws);
 
 	SLP_MGR_INFO("%s ok!\n", __func__);
 
