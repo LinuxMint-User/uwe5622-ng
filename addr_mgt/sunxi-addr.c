@@ -43,7 +43,7 @@
 
 #define ADDR_CLASS_ATTR_ADD(name) \
 static ssize_t addr_##name##_show(wcn_class_t *class, \
-		struct class_attribute *attr, char *buffer) \
+		wcn_class_attr_t *attr, char *buffer) \
 { \
 	char addr[ADDR_STR_LEN]; \
 	if (IS_TYPE_INVALID(get_addr_by_name(ADDR_FMT_STR, addr, #name))) \
@@ -51,7 +51,7 @@ static ssize_t addr_##name##_show(wcn_class_t *class, \
 	return sprintf(buffer, "%.17s\n", addr); \
 } \
 static ssize_t addr_##name##_store(wcn_class_t *class, \
-		struct class_attribute *attr, \
+		wcn_class_attr_t *attr, \
 		const char *buffer, size_t count) \
 { \
 	if (count != ADDR_STR_LEN) { \
@@ -277,7 +277,7 @@ static int addr_init(struct platform_device *pdev)
 }
 
 static ssize_t summary_show(wcn_class_t *class,
-				struct class_attribute *attr, char *buffer)
+				wcn_class_attr_t *attr, char *buffer)
 {
 	int i = 0, ret = 0;
 

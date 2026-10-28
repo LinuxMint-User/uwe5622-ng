@@ -25,11 +25,14 @@
 #define wcn_class_create(name)		class_create(name)
 #endif
 
-/* v6.4 made the class passed to class attribute callbacks const. */
+/* v6.4 made the class and attribute passed to class attribute callbacks
+ * const. */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 4, 0)
 typedef struct class wcn_class_t;
+typedef struct class_attribute wcn_class_attr_t;
 #else
 typedef const struct class wcn_class_t;
+typedef const struct class_attribute wcn_class_attr_t;
 #endif
 
 /* ---- wakeup_source create/add/remove/destroy --------------------------- */
