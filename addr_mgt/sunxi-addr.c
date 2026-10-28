@@ -317,6 +317,7 @@ static const struct of_device_id addr_mgt_ids[] = {
 	{ .compatible = "allwinner,sunxi-addr_mgt" },
 	{ /* Sentinel */ }
 };
+MODULE_DEVICE_TABLE(of, addr_mgt_ids);
 
 static int addr_mgt_probe(struct platform_device *pdev)
 {
