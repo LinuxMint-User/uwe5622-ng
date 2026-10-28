@@ -963,7 +963,7 @@ err_start:
 	return ret;
 }
 
-#if WCN_CFG80211_NEEDS_RADIO_IDX
+#if WCN_CFG80211_AP_UPDATE
 static int sprdwl_cfg80211_change_beacon(struct wiphy *wiphy,
 					 struct net_device *ndev,
 					 struct cfg80211_ap_update *info)
@@ -2045,7 +2045,7 @@ err:
 	return ret;
 }
 
-#if WCN_CFG80211_NEEDS_RADIO_IDX
+#if WCN_CFG80211_RADIO_IDX
 static int sprdwl_cfg80211_set_wiphy_params(struct wiphy *wiphy, int radio_idx,
 					    u32 changed)
 #else
@@ -2880,7 +2880,7 @@ static void sprdwl_cfg80211_stop_p2p_device(struct wiphy *wiphy,
 
 static int sprdwl_cfg80211_tdls_mgmt(struct wiphy *wiphy,
 					 struct net_device *ndev, const u8 *peer,
-#if WCN_CFG80211_NEEDS_RADIO_IDX
+#if WCN_CFG80211_TDLS_LINK_ID
 					 int link_id,
 #endif
 					 u8 action_code, u8 dialog_token,

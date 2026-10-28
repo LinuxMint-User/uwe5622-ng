@@ -117,10 +117,14 @@ typedef const struct genl_ops *wcn_genl_ops_t;
 
 /* ---- cfg80211_ops ------------------------------------------------------ */
 /*
- * 6.17 added the radio_idx and link_id arguments and switched
- * change_beacon() to struct cfg80211_ap_update.
+ * change_beacon() switched to struct cfg80211_ap_update in 6.7.
+ * set_wiphy_params() grew radio_idx and tdls_mgmt() grew link_id in 6.17.
  */
-#define WCN_CFG80211_NEEDS_RADIO_IDX \
+#define WCN_CFG80211_AP_UPDATE \
+	(LINUX_VERSION_CODE >= KERNEL_VERSION(6, 7, 0))
+#define WCN_CFG80211_RADIO_IDX \
+	(LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0))
+#define WCN_CFG80211_TDLS_LINK_ID \
 	(LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0))
 
 #endif /* __UWE5622_COMPAT_H */
