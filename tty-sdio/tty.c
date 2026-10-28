@@ -468,10 +468,10 @@ static  int sdio_data_transmit(uint8_t *data, size_t count)
 	return mtty_write(NULL, data, count);
 }
 
-static int mtty_write_plus(struct tty_struct *tty,
-		  const unsigned char *buf, int count)
+static ssize_t mtty_write_plus(struct tty_struct *tty,
+		  const unsigned char *buf, size_t count)
 {
-	return sitm_write(buf, count, sdio_data_transmit);
+	return sitm_write(buf, (int)count, sdio_data_transmit);
 }
 
 static void mtty_flush_chars(struct tty_struct *tty)
