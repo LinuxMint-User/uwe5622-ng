@@ -33,6 +33,7 @@
 #include <marlin_platform.h>
 #include <wcn_bus.h>
 
+#include "compat.h"
 #include "wcn_gnss.h"
 #include "rf/rf.h"
 #include "../sleep/sdio_int.h"
@@ -1371,15 +1372,15 @@ static int marlin_registsr_bt_wake(struct device *dev)
 {
 	struct device_node *np;
 	int bt_wake_host_gpio, ret = 0;
-	struct gpio_config config;
+	struct gpio_config config = {0}; /* 6.18 shim fills ->gpio only */
 
 	np = of_find_compatible_node(NULL, NULL, "allwinner,sunxi-btlpm");
 	if (!np) {
 		WCN_ERR("dts node for bt_wake not found");
 		return -EINVAL;
 	}
-	bt_wake_host_gpio = of_get_named_gpio_flags(np, "bt_hostwake", 0,
-		(enum of_gpio_flags *)&config);
+	bt_wake_host_gpio = wcn_of_get_named_gpio_flags(np, "bt_hostwake", 0,
+		&config);
 	if (!gpio_is_valid(bt_wake_host_gpio)) {
 		WCN_ERR("bt_hostwake irq is invalid: %d\n",
 			bt_wake_host_gpio);
