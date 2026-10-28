@@ -106,5 +106,11 @@ typedef const struct genl_ops *wcn_genl_ops_t;
 #endif
 
 /* ---- cfg80211_ops ------------------------------------------------------ */
+/*
+ * 6.17 added the radio_idx and link_id arguments and switched
+ * change_beacon() to struct cfg80211_ap_update.
+ */
+#define WCN_CFG80211_NEEDS_RADIO_IDX \
+	(LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0))
 
 #endif /* __UWE5622_COMPAT_H */

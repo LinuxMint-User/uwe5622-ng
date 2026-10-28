@@ -963,10 +963,18 @@ err_start:
 	return ret;
 }
 
+#if WCN_CFG80211_NEEDS_RADIO_IDX
+static int sprdwl_cfg80211_change_beacon(struct wiphy *wiphy,
+					 struct net_device *ndev,
+					 struct cfg80211_ap_update *info)
+{
+	struct cfg80211_beacon_data *beacon = &info->beacon;
+#else
 static int sprdwl_cfg80211_change_beacon(struct wiphy *wiphy,
 					 struct net_device *ndev,
 					 struct cfg80211_beacon_data *beacon)
 {
+#endif
 	struct sprdwl_vif *vif = netdev_priv(ndev);
 
 	wl_ndev_log(L_DBG, ndev, "%s\n", __func__);
@@ -2037,7 +2045,12 @@ err:
 	return ret;
 }
 
+#if WCN_CFG80211_NEEDS_RADIO_IDX
+static int sprdwl_cfg80211_set_wiphy_params(struct wiphy *wiphy, int radio_idx,
+					    u32 changed)
+#else
 static int sprdwl_cfg80211_set_wiphy_params(struct wiphy *wiphy, u32 changed)
+#endif
 {
 	struct sprdwl_priv *priv = wiphy_priv(wiphy);
 	u32 rts = 0, frag = 0;
@@ -2867,6 +2880,9 @@ static void sprdwl_cfg80211_stop_p2p_device(struct wiphy *wiphy,
 
 static int sprdwl_cfg80211_tdls_mgmt(struct wiphy *wiphy,
 					 struct net_device *ndev, const u8 *peer,
+#if WCN_CFG80211_NEEDS_RADIO_IDX
+					 int link_id,
+#endif
 					 u8 action_code, u8 dialog_token,
 					 u16 status_code,  u32 peer_capability,
 					 bool initiator, const u8 *buf, size_t len)
