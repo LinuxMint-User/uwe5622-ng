@@ -995,6 +995,8 @@ int sprdwl_get_fw_info(struct sprdwl_priv *priv)
 			priv->ott_supt = OTT_NO_SUPT;
 		} else {
 			len_count = sizeof(struct sprdwl_cmd_fw_info);
+			if (len_count > r_len)
+				len_count = r_len;
 			tlv = (struct sprdwl_tlv_data *)((u8 *)r_buf + len_count);
 			while ((len_count + sizeof(struct sprdwl_tlv_data) + tlv->len) <= r_len) {
 				b_tlv_data_chk = false;

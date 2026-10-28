@@ -335,6 +335,12 @@ struct sprdwl_cmd_fw_info {
 #define TX_WITH_CREDIT	(0)
 #define TX_NO_CREDIT	(1)
 	unsigned char credit_capa;
+	/*
+	 * Firmware returns one extra reserved byte after credit_capa before
+	 * the TLV area (89 bytes total on uwe5622 2022.04).  Keeping it in
+	 * the struct makes sizeof() line up with the TLV start.
+	 */
+	u8 rsvd;
 } __packed;
 
 /* WIFI_CMD_OPEN */
