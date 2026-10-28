@@ -29,6 +29,9 @@ JOBS ?= 12
 export KBUILD_MODPOST_WARN := 1
 
 # Switches consumed by the vendored subdirectory Makefiles.
+# CONFIG_AW_BIND_VERIFY is intentionally left undefined: the bind-verify code in
+# unisocwcn/platform/wcn_boot.c depends on vendor crypto patches that mainline
+# does not have, so the guarded blocks stay compiled out.
 CONFIG_AW_WIFI_DEVICE_UWE5622 := y
 CONFIG_TTY_OVERY_SDIO := m
 CONFIG_SUNXI_ADDR_MGT := m
