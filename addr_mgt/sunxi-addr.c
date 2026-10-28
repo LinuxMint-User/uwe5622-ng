@@ -21,6 +21,8 @@
 				__func__, ## arg)
 #define ADDR_MGT_ERR(fmt, arg...) printk(KERN_ERR "[ADDR_MGT] %s: " fmt "\n",\
 				__func__, ## arg)
+#define ADDR_MGT_INFO(fmt, arg...) printk(KERN_INFO "[ADDR_MGT] %s: " fmt "\n",\
+				__func__, ## arg)
 
 #define MODULE_CUR_VERSION  "v1.0.9"
 
@@ -78,7 +80,6 @@ static struct addr_mgt_info info[] = {
 };
 
 extern int hmac_sha256(const uint8_t *plaintext, ssize_t psize, uint8_t *output);
-extern int sunxi_get_soc_chipid(unsigned char *chipid);
 
 static int addr_parse(int fmt, const char *addr, int check)
 {
@@ -187,8 +188,8 @@ static int addr_factory(struct device_node *np,
 {
 	int  ret, i;
 	char match[MATCH_STR_LEN];
-	const char *p;
-	char id[ID_LEN], hash[HASH_LEN], cmp_buf[ID_LEN];
+	const char *p, *sn;
+	char hash[HASH_LEN];
 	struct timespec64 curtime;
 
 	switch (type) {
@@ -208,13 +209,14 @@ static int addr_factory(struct device_node *np,
 	case TYPE_IDGEN:
 		if (idx > HASH_LEN / ADDR_VAL_LEN - 1)
 			return -1;
-		if (sunxi_get_soc_chipid(id))
+		if (of_property_read_string(of_root, "serial-number", &sn))
 			return -1;
-		memset(cmp_buf, 0x00, ID_LEN);
-		if (memcmp(id, cmp_buf, ID_LEN) == 0)
+		if (!sn || !sn[0])
 			return -1;
-		if (hmac_sha256(id, ID_LEN, hash))
+		if (hmac_sha256(sn, strlen(sn), hash))
 			return -1;
+		ADDR_MGT_INFO("MAC for %s derived from DT serial-number (%s)",
+			      name, sn);
 		memcpy(mac, &hash[idx * ADDR_VAL_LEN], ADDR_VAL_LEN);
 		break;
 	case TYPE_RAND:
