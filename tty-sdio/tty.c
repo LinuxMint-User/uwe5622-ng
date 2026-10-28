@@ -34,6 +34,7 @@
 #include <linux/interrupt.h>
 #include <linux/workqueue.h>
 #include <linux/version.h>
+#include <linux/of.h>
 
 #include <marlin_platform.h>
 #include "tty.h"
