@@ -84,6 +84,7 @@ static void parse_frame(data_ready_cb data_ready, frame_complete_cb frame_comple
 			memset(rd->preamble, 0, PREAMBLE_BUFFER_SIZE);
 			rd->index = 0;
 			rd->state = PREAMBLE;
+			fallthrough;
 		case PREAMBLE:
 			rd->preamble[rd->index] = byte;
 			rd->index++;

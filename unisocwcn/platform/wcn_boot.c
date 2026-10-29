@@ -1443,7 +1443,7 @@ static int marlin_parse_dt(struct platform_device *pdev)
 #ifdef CONFIG_WCN_PARSE_DTS
 	struct device_node *np = pdev->dev.of_node;
 #elif defined CONFIG_AW_BOARD
-	struct device_node *np = NULL;
+	struct device_node *np __maybe_unused = NULL;
 #endif
 #ifdef CONFIG_WCN_PMIC
 	struct regmap *pmu_apb_gpr;

@@ -395,7 +395,7 @@ int sprdwl_init_fw(struct sprdwl_vif *vif)
 	struct sprdwl_priv *priv = vif->priv;
 	enum nl80211_iftype type = vif->wdev.iftype;
 	enum sprdwl_mode mode;
-	u8 *mac;
+	const u8 *mac;
 	u8 vif_ctx_id = 0;
 
 	wl_ndev_log(L_DBG, vif->ndev, "%s type %d, mode %d\n", __func__, type,
@@ -2269,10 +2269,6 @@ void sprdwl_report_scan_result(struct sprdwl_vif *vif, u16 chan, s16 rssi,
 				  mgmt->bssid, tsf, capability, beacon_interval,
 				  ie, ielen, signal, GFP_KERNEL);
 
-	if (unlikely(!bss))
-		;
-		//wl_ndev_log(L_ERR, vif->ndev,
-		//	   "%s failed to inform bss frame!\n", __func__);
 	cfg80211_put_bss(wiphy, bss);
 
 	/*check log mac flag and call report fake probe*/
@@ -2403,11 +2399,6 @@ void sprdwl_report_connection(struct sprdwl_vif *vif,
 					  mgmt->bssid, tsf,
 					  capability, beacon_interval,
 					  ie, ielen, conn_info->signal, GFP_KERNEL);
-		if (unlikely(!bss))
-			;
-			//wl_ndev_log(L_ERR, vif->ndev,
-			//	   "%s failed to inform bss frame!\n",
-			//	   __func__);
 	} else {
 		wl_ndev_log(L_ERR, vif->ndev, "%s No Beason IE!\n", __func__);
 	}

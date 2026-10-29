@@ -118,8 +118,9 @@ static int load_fstab_conf(const char *p_path, char *WCN_PATH)
 					"%s", p_name);
 				WCN_PATH[strlen(WCN_PATH) - strlen(temp)]
 					= '\0';
-				snprintf(WCN_PATH, strlen(WCN_PATH)+9,
-					"%s%s", WCN_PATH, "wcnmodem");
+				snprintf(WCN_PATH + strlen(WCN_PATH),
+					strlen(p_name) + 1 - strlen(WCN_PATH),
+					"%s", "wcnmodem");
 				match_flag = true;
 				break;
 			}

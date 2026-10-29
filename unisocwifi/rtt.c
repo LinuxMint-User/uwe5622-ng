@@ -699,7 +699,6 @@ int sprdwl_event_ftm(struct sprdwl_vif *vif, u8 *data, u16 len)
 
 	memcpy(&sub_event, data, sizeof(sub_event));
 	data += sizeof(sub_event);
-	len -= sizeof(sub_event);
 
 	switch (sub_event) {
 	case RTT_SESSION_END:

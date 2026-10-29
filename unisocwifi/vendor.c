@@ -486,7 +486,7 @@ static int sprdwl_vendor_get_llstat_handler(struct wiphy *wiphy,
 	iface_st->info.mode = vif->mode;
 	memcpy(iface_st->info.mac_addr, vif->ndev->dev_addr,
 		   ETH_ALEN);
-	iface_st->info.state = vif->sm_state;
+	iface_st->info.state = (enum wifi_connection_state)vif->sm_state;
 	memcpy(iface_st->info.ssid, vif->ssid,
 		   IEEE80211_MAX_SSID_LEN);
 	ether_addr_copy(iface_st->info.bssid, vif->bssid);
