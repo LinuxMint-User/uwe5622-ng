@@ -45,8 +45,12 @@ export UNISOC_FW_PATH_CONFIG := "/lib/firmware/"
 MODDIRS := unisocwcn unisocwifi tty-sdio addr_mgt
 
 sync:
-	@mkdir -p "$(BUILDSRC)"
-	@rsync -a --delete --exclude=.git/ "$(SRC)/" "$(BUILDSRC)/"
+	@if [ "$(abspath $(SRC))" = "$(abspath $(BUILDSRC))" ]; then \
+		echo "BUILDSRC == SRC (dkms build), skip rsync"; \
+	else \
+		mkdir -p "$(BUILDSRC)"; \
+		rsync -a --delete --exclude=.git/ "$(SRC)/" "$(BUILDSRC)/"; \
+	fi
 
 all: sync
 	@set -e; for d in $(MODDIRS); do \
