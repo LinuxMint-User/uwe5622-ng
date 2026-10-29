@@ -97,16 +97,27 @@ grep -E 'CONFIG_NLS_(ISO8859_1|UTF8|CODEPAGE_437)' /boot/config-<版本>
 
 ## 8. 设备树补丁重新套用
 
+这一步需要**完整内核源码树**（第 4 步那棵 headers 树只能编模块，编不了 dtb），
+补丁的路径前缀是 `arch/arm64/boot/dts/allwinner/`，所以在源码树根目录 `-p1` 即可：
+
 ```sh
 cd <内核源码树>
 patch -p1 --dry-run < /path/to/zero3-dt.patch
 ```
 
 补丁见 [orangepi-zero-3-dtb-neo](https://github.com/LinuxMint-User/orangepi-zero-3-dtb-neo) 的
-`patches/zero3-dt.patch`。
+`patches/zero3-dt.patch`。只想编 dtb 的话，也可以直接用同仓库展开好的
+`sun50i-h618-orangepi-zero3-neo.dts`，不需要主线源码树。
 
 判据：只有 `checking file ...`，没有 fuzz 或失败。
 若上游改了同一位置，按新结构手工合并，不要用 `--force` 硬打。
+
+打完确认能编出来：
+
+```sh
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
+     allwinner/sun50i-h618-orangepi-zero3.dtb
+```
 
 ## 9. 固件与蓝牙 ini
 
