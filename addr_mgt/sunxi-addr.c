@@ -177,6 +177,8 @@ static int set_addr_by_name(int type, int fmt, const char *addr, char *name)
 	return 0;
 }
 
+int get_custom_mac_address(int fmt, char *name, char *addr);
+
 int get_custom_mac_address(int fmt, char *name, char *addr)
 {
 	return get_addr_by_name(fmt, addr, name);

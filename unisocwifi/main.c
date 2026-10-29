@@ -994,10 +994,6 @@ static int sprdwl_inetaddr_event(struct notifier_block *this,
 			if (entry != NULL) {
 				if (entry->ctx_id == vif->ctx_id)
 					entry->ip_acquired = 1;
-				else
-					;
-					//wl_err("ctx_id(%d) mismatch\n",
-					//	   entry->ctx_id);
 			} else {
 				wl_err("failed to find entry\n");
 			}

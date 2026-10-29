@@ -117,6 +117,7 @@ void handle_tx_status_after_close(struct sprdwl_vif *vif);
 void sprdwl_flush_tx_qoslist(struct sprdwl_tx_msg *tx_msg, int mode, int ac_index, int lut_index);
 void sprdwl_flush_mode_txlist(struct sprdwl_tx_msg *tx_msg, enum sprdwl_mode mode);
 void sprdwl_flush_tosendlist(struct sprdwl_tx_msg *tx_msg);
+void sprdwl_flush_all_txlist(struct sprdwl_tx_msg *sprdwl_tx_dev);
 void sprdwl_fc_add_share_credit(struct sprdwl_vif *vif);
 
 bool is_vowifi_pkt(struct sk_buff *skb, bool *b_cmd_path);

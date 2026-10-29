@@ -68,7 +68,7 @@ unsigned int mem_pd_wifi_state(void)
 	return ret;
 }
 
-unsigned int mem_pd_spinlock_lock(int id)
+static unsigned int mem_pd_spinlock_lock(int id)
 {
 	int ret = 0;
 	int i = 0;
@@ -92,7 +92,7 @@ unsigned int mem_pd_spinlock_lock(int id)
 	return 0;
 }
 
-unsigned int mem_pd_spinlock_unlock(int id)
+static unsigned int mem_pd_spinlock_unlock(int id)
 {
 	int ret = 0;
 	unsigned int reg_val = UNLOCK_TOKEN;
@@ -576,36 +576,6 @@ static int ap_int_cp_wifi_bin_done(int subsys)
 	break;
 	case MARLIN_BLUETOOTH:
 		inform_cp_bt_download();
-	break;
-	default:
-	return MEM_PD_ERR;
-	}
-
-	return 0;
-}
-
-int test_mem_clrear(int subsys)
-{
-	int err;
-
-	switch (subsys) {
-	case MARLIN_WIFI:
-		err = sprdwcn_bus_direct_write(mem_info_cp.wifi_begin_addr,
-					       mem_pd.wifi_clear,
-					       mem_info_cp.wifi_size);
-		if (err < 0) {
-			pr_err("%s wifi down bin error:%d", __func__, err);
-			return err;
-		}
-	break;
-	case MARLIN_BLUETOOTH:
-		err = sprdwcn_bus_direct_write(mem_info_cp.bt_begin_addr,
-					       mem_pd.bt_clear,
-					       mem_info_cp.bt_size);
-		if (err < 0) {
-			pr_err("%s bt down mem bin error:%d", __func__, err);
-			return err;
-		}
 	break;
 	default:
 	return MEM_PD_ERR;

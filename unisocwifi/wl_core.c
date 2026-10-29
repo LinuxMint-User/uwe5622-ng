@@ -40,7 +40,7 @@ int sprdwl_debug_level = L_NONE;
 #endif
 
 struct device *sprdwl_dev;
-void adjust_debug_level(char *buf, unsigned char offset)
+static void adjust_debug_level(char *buf, unsigned char offset)
 {
 	int level = buf[offset] - '0';
 
@@ -70,7 +70,7 @@ extern unsigned int vi_ratio;
 extern unsigned int be_ratio;
 extern unsigned int wmmac_ratio;
 
-void adjust_qos_ratio(char *buf, unsigned char offset)
+static void adjust_qos_ratio(char *buf, unsigned char offset)
 {
 	unsigned int qos_ratio =
 		(buf[offset + 3] - '0')*10 + (buf[offset + 4] - '0');
@@ -91,7 +91,7 @@ void adjust_qos_ratio(char *buf, unsigned char offset)
 }
 #endif
 unsigned int new_threshold;
-void adjust_tdls_threshold(char *buf, unsigned char offset)
+static void adjust_tdls_threshold(char *buf, unsigned char offset)
 {
 	unsigned int value = 0;
 	unsigned int i = 0;
@@ -437,7 +437,7 @@ static const struct file_operations txrx_debug_fops = {
 	.release = single_release,
 };
 
-void sprdwl_debugfs(void *spdev, struct dentry *dir)
+static void sprdwl_debugfs(void *spdev, struct dentry *dir)
 {
 	struct sprdwl_intf *intf;
 
@@ -448,7 +448,7 @@ void sprdwl_debugfs(void *spdev, struct dentry *dir)
 
 static struct dentry *sprdwl_debug_root;
 
-void sprdwl_debugfs_init(struct sprdwl_intf *intf)
+static void sprdwl_debugfs_init(struct sprdwl_intf *intf)
 {
 	/* create debugfs */
 	sprdwl_debug_root = debugfs_create_dir("sprdwl_debug", NULL);
@@ -469,7 +469,7 @@ void sprdwl_debugfs_init(struct sprdwl_intf *intf)
 		debug_ctrl_init();
 }
 
-void sprdwl_debugfs_deinit(void)
+static void sprdwl_debugfs_deinit(void)
 {
 	/* remove debugfs */
 	debugfs_remove_recursive(sprdwl_debug_root);
@@ -537,14 +537,10 @@ static struct notifier_block boost_notifier = {
 
 #ifdef CP2_RESET_SUPPORT
 extern struct sprdwl_priv *g_sprdwl_priv;
-extern void sprdwl_cancel_scan(struct sprdwl_vif *vif);
-extern void sprdwl_cancel_sched_scan(struct sprdwl_vif *vif);
-extern void sprdwl_flush_all_txlist(struct sprdwl_tx_msg *sprdwl_tx_dev);
 extern int sprdwl_cmd_init(void);
 extern void sprdwl_cmd_deinit(void);
 extern void sprdwl_net_flowcontrl(struct sprdwl_priv *priv,
 			   enum sprdwl_mode mode, bool state);
-extern void sprdwl_reg_notify(struct wiphy *wiphy, struct regulatory_request *request);
 struct work_struct wifi_rst_begin;
 struct work_struct wifi_rst_down;
 struct completion wifi_reset_ready;

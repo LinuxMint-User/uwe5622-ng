@@ -1,6 +1,15 @@
 #ifndef _WCN_PROCFS
 #define _WCN_PROCFS
 
+#include <wcn_bus.h>
+
+int mdbg_assert_read(int channel, struct mbuf_t *head,
+		     struct mbuf_t *tail, int num);
+int mdbg_loopcheck_read(int channel, struct mbuf_t *head,
+			struct mbuf_t *tail, int num);
+int mdbg_at_cmd_read(int channel, struct mbuf_t *head,
+		     struct mbuf_t *tail, int num);
+
 #define MDBG_SNAP_SHOOT_SIZE		(32*1024)
 #define MDBG_WRITE_SIZE			(64)
 #define MDBG_ASSERT_SIZE		(1024)

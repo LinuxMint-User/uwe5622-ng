@@ -594,28 +594,6 @@ void reset_wmmac_ts_info(void)
 		remove_wmmac_ts_info(tsid);
 }
 
-unsigned int priority_map_to_qos_index(int priority)
-{
-	qos_head_type_t qos_index = SPRDWL_AC_BE;
-
-	switch (up_to_ac[priority]) {
-	case prio_1:
-		qos_index = SPRDWL_AC_BK;
-		break;
-	case prio_4:
-		qos_index = SPRDWL_AC_VI;
-		break;
-	case prio_6:
-		qos_index = SPRDWL_AC_VO;
-		break;
-	default:
-		qos_index = SPRDWL_AC_BE;
-		break;
-	}
-	/*return data_type as qos queue index*/
-	return qos_index;
-}
-
 unsigned int map_priority_to_edca_ac(int priority)
 {
 	int ac;

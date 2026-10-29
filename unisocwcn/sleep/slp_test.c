@@ -4,6 +4,8 @@
 
 #include "slp_mgr.h"
 #include "slp_sdio.h"
+
+#ifdef SLP_MGR_TEST
 static int test_cnt;
 int sleep_test_thread(void *data)
 {
@@ -38,3 +40,4 @@ int slp_test_init(void)
 
 	return -1;
 }
+#endif

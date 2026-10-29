@@ -315,7 +315,7 @@ void sprdwl_dequeue_data_list(struct mbuf_t *head, int num)
 }
 
 /* seam for tx_thread */
-void tx_down(struct sprdwl_tx_msg *tx_msg)
+static void tx_down(struct sprdwl_tx_msg *tx_msg)
 {
 	wait_for_completion(&tx_msg->tx_completed);
 }
@@ -378,7 +378,7 @@ void handle_tx_status_after_close(struct sprdwl_vif *vif)
 	}
 }
 
-void sprdwl_init_xmit_list(struct sprdwl_tx_msg *tx_msg)
+static void sprdwl_init_xmit_list(struct sprdwl_tx_msg *tx_msg)
 {
 	INIT_LIST_HEAD(&tx_msg->xmit_msg_list.to_send_list);
 	INIT_LIST_HEAD(&tx_msg->xmit_msg_list.to_free_list);
@@ -418,29 +418,6 @@ add_xmit_list_tail(struct sprdwl_tx_msg *tx_msg,
 	wl_debug("%s,%d,q_num%d,tosend_num%d\n", __func__, __LINE__,
 		 get_list_num(&p_list->head_list),
 		 get_list_num(&tx_msg->xmit_msg_list.to_send_list));
-}
-
-unsigned int queue_is_empty(struct sprdwl_tx_msg *tx_msg, enum sprdwl_mode mode)
-{
-	int i, j;
-	struct tx_t *tx_t_list = tx_msg->tx_list[mode];
-
-	if (mode == SPRDWL_MODE_AP || mode == SPRDWL_MODE_P2P_GO) {
-		for (i = 0;  i < SPRDWL_AC_MAX; i++) {
-			for (j = 0;  j < MAX_LUT_NUM; j++) {
-				if (!list_empty(&tx_t_list->q_list[i].p_list[j].head_list))
-					return 0;
-			}
-		}
-		return 1;
-	}
-	/*other mode, STA/GC/...*/
-	j = tx_msg->tx_list[mode]->lut_id;
-	for (i = 0;  i < SPRDWL_AC_MAX; i++) {
-		if (!list_empty(&tx_t_list->q_list[i].p_list[j].head_list))
-			return 0;
-	}
-	return 1;
 }
 
 void sprdwl_wake_net_ifneed(struct sprdwl_intf *dev,
@@ -539,7 +516,7 @@ void sprdwl_fc_add_share_credit(struct sprdwl_vif *vif)
 	}
 }
 
-int sprdwl_fc_find_color_per_mode(struct sprdwl_tx_msg *tx_msg,
+static int sprdwl_fc_find_color_per_mode(struct sprdwl_tx_msg *tx_msg,
 				enum sprdwl_mode mode,
 				u8 *index)
 {
@@ -580,7 +557,7 @@ int sprdwl_fc_find_color_per_mode(struct sprdwl_tx_msg *tx_msg,
 	return found;
 }
 
-int sprdwl_fc_get_shared_num(struct sprdwl_tx_msg *tx_msg, u8 num)
+static int sprdwl_fc_get_shared_num(struct sprdwl_tx_msg *tx_msg, u8 num)
 {
 	u8 i;
 	int shared_flow_num = 0;
@@ -605,7 +582,7 @@ int sprdwl_fc_get_shared_num(struct sprdwl_tx_msg *tx_msg, u8 num)
 	return shared_flow_num;
 }
 
-int sprdwl_fc_get_send_num(struct sprdwl_tx_msg *tx_msg,
+static int sprdwl_fc_get_send_num(struct sprdwl_tx_msg *tx_msg,
 				 enum sprdwl_mode mode,
 				 int data_num)
 {
@@ -669,7 +646,7 @@ int sprdwl_fc_get_send_num(struct sprdwl_tx_msg *tx_msg,
 }
 
 /*to see there is shared flow or not*/
-int sprdwl_fc_test_shared_num(struct sprdwl_tx_msg *tx_msg)
+static int sprdwl_fc_test_shared_num(struct sprdwl_tx_msg *tx_msg)
 {
 	u8 i;
 	int shared_flow_num = 0;
@@ -685,7 +662,7 @@ int sprdwl_fc_test_shared_num(struct sprdwl_tx_msg *tx_msg)
 	return shared_flow_num;
 }
 /*to check flow number, no flow number, no send*/
-int sprdwl_fc_test_send_num(struct sprdwl_tx_msg *tx_msg,
+static int sprdwl_fc_test_send_num(struct sprdwl_tx_msg *tx_msg,
 				 enum sprdwl_mode mode,
 				 int data_num)
 {
@@ -749,7 +726,7 @@ u8 sprdwl_fc_set_clor_bit(struct sprdwl_tx_msg *tx_msg, int num)
 	return i;
 }
 
-void sprdwl_handle_tx_return(struct sprdwl_tx_msg *tx_msg,
+static void sprdwl_handle_tx_return(struct sprdwl_tx_msg *tx_msg,
 				  struct sprdwl_msg_list *list,
 				  int send_num, int ret)
 {
@@ -781,7 +758,7 @@ void sprdwl_handle_tx_return(struct sprdwl_tx_msg *tx_msg,
 	}
 }
 
-int handle_tx_timeout(struct sprdwl_tx_msg *tx_msg,
+static int handle_tx_timeout(struct sprdwl_tx_msg *tx_msg,
 			  struct sprdwl_msg_list *msg_list,
 			  struct peer_list *p_list, int ac_index)
 {
@@ -1188,7 +1165,7 @@ exit:
 	return ret;
 }
 
-void prepare_addba(struct sprdwl_intf *intf, unsigned char lut_index,
+static void prepare_addba(struct sprdwl_intf *intf, unsigned char lut_index,
 		   struct sk_buff *skb, struct sprdwl_peer_entry *peer_entry,
 		   unsigned char tid)
 {
@@ -1650,7 +1627,7 @@ static int sprdwl_mc_pkt_checksum(struct sk_buff *skb, struct net_device *ndev)
 	return 1;
 }
 
-int sprdwl_tx_mc_pkt(struct sk_buff *skb, struct net_device *ndev)
+static int sprdwl_tx_mc_pkt(struct sk_buff *skb, struct net_device *ndev)
 {
 	struct sprdwl_vif *vif;
 	struct sprdwl_intf *intf;
@@ -1726,7 +1703,7 @@ bool is_vowifi_pkt(struct sk_buff *skb, bool *b_cmd_path)
 	return ret;
 }
 
-int sprdwl_tx_filter_ip_pkt(struct sk_buff *skb, struct net_device *ndev)
+static int sprdwl_tx_filter_ip_pkt(struct sk_buff *skb, struct net_device *ndev)
 {
 	bool is_data2cmd;
 	bool is_ipv4_dhcp, is_ipv6_dhcp;

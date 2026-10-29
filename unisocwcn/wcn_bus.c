@@ -19,6 +19,8 @@
 #include <linux/spinlock.h>
 #include <wcn_bus.h>
 
+#include "bus_common.h"
+
 struct buffer_pool_t {
 	int size;
 	int free;

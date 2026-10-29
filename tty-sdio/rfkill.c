@@ -24,6 +24,8 @@
 #include <linux/version.h>
 #include <marlin_platform.h>
 
+#include "rfkill.h"
+
 
 static struct rfkill *bt_rfk;
 static const char bt_name[] = "bluetooth";

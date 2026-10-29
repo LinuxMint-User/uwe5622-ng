@@ -10,6 +10,8 @@
 #include <linux/kernel.h>
 #include <linux/string.h>
 
+int hmac_sha256(const uint8_t *plaintext, ssize_t psize, uint8_t *output);
+
 /****************************** MACROS ******************************/
 #define ROTRIGHT(a, b) (((a) >> (b)) | ((a) << (32 - (b))))
 #define CH(x, y, z)    (((x) & (y)) ^ (~(x) & (z)))

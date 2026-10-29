@@ -182,7 +182,7 @@ static const char *assert_reason_to_str(u8 reason)
 
 #undef AR2S
 
-uint16_t CRC16(uint8_t *buf, uint16_t len)
+static uint16_t CRC16(uint8_t *buf, uint16_t len)
 {
 	uint16_t CRC = 0xFFFF;
 	uint16_t i;
@@ -680,7 +680,7 @@ out:
  * rlen: input the length of rbuf
  *       output the length of the msg,if *rlen == 0, rbuf get nothing
  */
-int sprdwl_cmd_send_recv_no_wait(struct sprdwl_priv *priv,
+static int sprdwl_cmd_send_recv_no_wait(struct sprdwl_priv *priv,
 			 struct sprdwl_msg_buf *msg)
 {
 	u8 cmd_id;
@@ -2334,7 +2334,7 @@ int sprdwl_set_max_clients_allowed(struct sprdwl_priv *priv,
 	return sprdwl_cmd_send_recv(priv, msg, CMD_WAIT_TIMEOUT, NULL, NULL);
 }
 
-void sprdwl_add_hang_cmd(struct sprdwl_vif *vif)
+static void sprdwl_add_hang_cmd(struct sprdwl_vif *vif)
 {
 	struct sprdwl_work *misc_work;
 	struct sprdwl_cmd *cmd = &g_sprdwl_cmd;
@@ -2357,7 +2357,7 @@ void sprdwl_add_hang_cmd(struct sprdwl_vif *vif)
 	sprdwl_queue_work(vif->priv, misc_work);
 }
 
-void sprdwl_add_close_cmd(struct sprdwl_vif *vif, enum sprdwl_mode mode)
+static void sprdwl_add_close_cmd(struct sprdwl_vif *vif, enum sprdwl_mode mode)
 {
 	struct sprdwl_work *misc_work;
 
@@ -2644,19 +2644,6 @@ int sprdwl_cmd_host_wakeup_fw(struct sprdwl_priv *priv, u8 ctx_id)
 	return ret;
 }
 
-int sprdwl_cmd_req_lte_concur(struct sprdwl_priv *priv, u8 ctx_id, u8 user_channel)
-{
-	struct sprdwl_msg_buf *msg;
-
-	msg = sprdwl_cmd_getbuf(priv, sizeof(user_channel), ctx_id,
-				SPRDWL_HEAD_RSP, WIFI_CMD_REQ_LTE_CONCUR);
-	if (!msg)
-		return -ENOMEM;
-
-	*(u8 *)msg->data = user_channel;
-	return sprdwl_cmd_send_recv(priv, msg, CMD_WAIT_TIMEOUT, NULL, NULL);
-}
-
 static int handle_rsp_status_err(u8 cmd_id, s8 status)
 {
 	int flag = 0;
@@ -2755,7 +2742,7 @@ unsigned short sprdwl_rx_rsp_process(struct sprdwl_priv *priv, u8 *msg)
 }
 
 /* Events */
-void sprdwl_event_station(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_event_station(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	struct sprdwl_event_new_station *sta =
 		(struct sprdwl_event_new_station *)data;
@@ -2764,7 +2751,7 @@ void sprdwl_event_station(struct sprdwl_vif *vif, u8 *data, u16 len)
 				 sta->mac, sta->ie, sta->ie_len);
 }
 
-void sprdwl_event_scan_done(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_event_scan_done(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	struct sprdwl_event_scan_done *p =
 		(struct sprdwl_event_scan_done *)data;
@@ -2801,7 +2788,7 @@ void sprdwl_event_scan_done(struct sprdwl_vif *vif, u8 *data, u16 len)
 	bss_count = 0;
 }
 
-void sprdwl_event_connect(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_event_connect(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	u8 *pos = data;
 	u8 status_code = 0;
@@ -2894,7 +2881,7 @@ out:
 	sprdwl_report_connection(vif, &conn_info, status_code);
 }
 
-void sprdwl_event_disconnect(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_event_disconnect(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	u16 reason_code;
 
@@ -2911,7 +2898,7 @@ void sprdwl_event_disconnect(struct sprdwl_vif *vif, u8 *data, u16 len)
 
 }
 
-void sprdwl_event_mic_failure(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_event_mic_failure(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	struct sprdwl_event_mic_failure *mic_failure =
 		(struct sprdwl_event_mic_failure *)data;
@@ -2920,13 +2907,13 @@ void sprdwl_event_mic_failure(struct sprdwl_vif *vif, u8 *data, u16 len)
 				  mic_failure->key_id);
 }
 
-void sprdwl_event_remain_on_channel_expired(struct sprdwl_vif *vif,
+static void sprdwl_event_remain_on_channel_expired(struct sprdwl_vif *vif,
 						u8 *data, u16 len)
 {
 	sprdwl_report_remain_on_channel_expired(vif);
 }
 
-void sprdwl_event_mlme_tx_status(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_event_mlme_tx_status(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	struct sprdwl_event_mgmt_tx_status *tx_status =
 		(struct sprdwl_event_mgmt_tx_status *)data;
@@ -2982,7 +2969,7 @@ void sprdwl_event_frame(struct sprdwl_vif *vif, u8 *data, u16 len, int flag)
 	}
 }
 
-void sprdwl_event_epno_results(struct sprdwl_vif *vif, u8 *data, u16 data_len)
+static void sprdwl_event_epno_results(struct sprdwl_vif *vif, u8 *data, u16 data_len)
 {
 	int i;
 	u64 msecs, now;
@@ -3072,7 +3059,7 @@ failed:
 	wl_err("%s report epno event failed\n", __func__);
 }
 
-void sprdwl_event_gscan_frame(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_event_gscan_frame(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	u32 report_event;
 	u8 *pos = data;
@@ -3139,7 +3126,7 @@ void sprdwl_event_gscan_frame(struct sprdwl_vif *vif, u8 *data, u16 len)
 
 }
 
-void sprdwl_event_cqm(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_event_cqm(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	struct sprdwl_event_cqm *p;
 	u8 rssi_event;
@@ -3167,7 +3154,7 @@ void sprdwl_event_cqm(struct sprdwl_vif *vif, u8 *data, u16 len)
 	sprdwl_report_cqm(vif, rssi_event);
 }
 
-void sprdwl_event_tdls(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_event_tdls(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	unsigned char peer[ETH_ALEN];
 	u8 oper;
@@ -3221,7 +3208,7 @@ inline void sprdwl_event_ba_mgmt(struct sprdwl_vif *vif, u8 *data, u16 len)
 	wlan_ba_session_event(vif->priv->hw_priv, data, len);
 }
 
-void sprdwl_event_suspend_resume(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_event_suspend_resume(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	struct sprdwl_event_suspend_resume *suspend_resume = NULL;
 	struct sprdwl_intf *intf = (struct sprdwl_intf *)(vif->priv->hw_priv);
@@ -3236,7 +3223,7 @@ void sprdwl_event_suspend_resume(struct sprdwl_vif *vif, u8 *data, u16 len)
 	}
 }
 
-void sprdwl_event_hang_recovery(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_event_hang_recovery(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	struct event_hang_recovery *hang =
 		(struct event_hang_recovery *)data;
@@ -3254,7 +3241,7 @@ void sprdwl_event_hang_recovery(struct sprdwl_vif *vif, u8 *data, u16 len)
 		tx_up(tx_msg);
 }
 
-void sprdwl_event_thermal_warn(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_event_thermal_warn(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	struct event_thermal_warn *thermal =
 		(struct event_thermal_warn *)data;
@@ -3296,7 +3283,7 @@ void sprdwl_event_thermal_warn(struct sprdwl_vif *vif, u8 *data, u16 len)
 #define WIFI_EVENT_WFD_RATE 0x30
 extern int wfd_notifier_call_chain(unsigned long val, void *v);
 
-void sprdwl_wfd_mib_cnt(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_wfd_mib_cnt(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	struct event_wfd_mib_cnt *wfd =
 		(struct event_wfd_mib_cnt *)data;
@@ -3389,7 +3376,7 @@ err:
 	return -1;
 }
 
-void sprdwl_event_fw_power_down(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_event_fw_power_down(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	struct sprdwl_work *misc_work;
 
@@ -3404,7 +3391,7 @@ void sprdwl_event_fw_power_down(struct sprdwl_vif *vif, u8 *data, u16 len)
 	sprdwl_queue_work(vif->priv, misc_work);
 }
 
-void sprdwl_event_chan_changed(struct sprdwl_vif *vif, u8 *data, u16 len)
+static void sprdwl_event_chan_changed(struct sprdwl_vif *vif, u8 *data, u16 len)
 {
 	struct sprdwl_chan_changed_info *p = (struct sprdwl_chan_changed_info *)data;
 	u8 channel;
@@ -3436,7 +3423,7 @@ void sprdwl_event_chan_changed(struct sprdwl_vif *vif, u8 *data, u16 len)
 	}
 }
 
-void sprdwl_event_coex_bt_on_off(u8 *data, u16 len)
+static void sprdwl_event_coex_bt_on_off(u8 *data, u16 len)
 {
 	struct event_coex_mode_changed *coex_bt_on_off =
 		(struct event_coex_mode_changed *)data;

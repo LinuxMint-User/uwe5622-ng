@@ -671,7 +671,7 @@ const char *strno(int subsys)
 }
 
 /* tsx/dac init */
-int marlin_tsx_cali_data_read(struct tsx_data *p_tsx_data)
+static int marlin_tsx_cali_data_read(struct tsx_data *p_tsx_data)
 {
 	u32 size = 0;
 	u32 read_len = 0;
@@ -1878,7 +1878,7 @@ void marlin_hold_cpu(void)
 	}
 }
 
-void marlin_read_cali_data(void)
+static __maybe_unused void marlin_read_cali_data(void)
 {
 	int err;
 
@@ -2678,7 +2678,7 @@ void marlin_chip_en(bool enable, bool reset)
 }
 EXPORT_SYMBOL_GPL(marlin_chip_en);
 
-int set_cp_mem_status(int subsys, int val)
+static int set_cp_mem_status(int subsys, int val)
 {
 	int ret;
 	unsigned int temp_val;
@@ -2716,7 +2716,7 @@ int set_cp_mem_status(int subsys, int val)
 	return ret;
 }
 
-int enable_spur_remove(void)
+static int enable_spur_remove(void)
 {
 	int ret;
 	unsigned int temp_val;
@@ -2731,7 +2731,7 @@ int enable_spur_remove(void)
 	return 0;
 }
 
-int disable_spur_remove(void)
+static int disable_spur_remove(void)
 {
 	int ret;
 	unsigned int temp_val;
@@ -2746,7 +2746,8 @@ int disable_spur_remove(void)
 	return 0;
 }
 
-void set_fm_supe_freq(int subsys, int val, unsigned long sub_state)
+static __maybe_unused void set_fm_supe_freq(int subsys, int val,
+					    unsigned long sub_state)
 {
 	switch (subsys) {
 	case MARLIN_FM:
@@ -2812,7 +2813,7 @@ static void marlin_scan_finish(void)
 	complete(&marlin_dev->carddetect_done);
 }
 
-int find_firmware_path(void)
+static int find_firmware_path(void)
 {
 	int ret;
 	int pre_len;
@@ -2999,7 +3000,7 @@ static void pre_btwifi_download_sdio(struct work_struct *work)
 }
 
 /* for example: wifipa bound XTLEN3 */
-int pmic_bound_xtl_assert(unsigned int enable)
+static int pmic_bound_xtl_assert(unsigned int enable)
 {
 #if defined(CONFIG_WCN_PMIC) && !defined(CONFIG_WCN_PCIE)
 	unsigned int val;
@@ -3016,7 +3017,7 @@ int pmic_bound_xtl_assert(unsigned int enable)
 	return 0;
 }
 
-void wifipa_enable(int enable)
+static void wifipa_enable(int enable)
 {
 	int ret = -1;
 
@@ -3046,7 +3047,7 @@ void wifipa_enable(int enable)
 }
 
 
-void set_wifipa_status(int subsys, int val)
+static void set_wifipa_status(int subsys, int val)
 {
 	return;
 
@@ -3081,7 +3082,7 @@ void set_wifipa_status(int subsys, int val)
  * ->(>=100uS) ADVV12
  * ->(>=10uS)  AVDD33
  */
-int chip_power_on(int subsys)
+static int chip_power_on(int subsys)
 {
 	WCN_DEBUG("%s\n", __func__);
 
@@ -3120,7 +3121,7 @@ int chip_power_on(int subsys)
 	return 0;
 }
 
-int chip_power_off(int subsys)
+static int chip_power_off(int subsys)
 {
 	WCN_INFO("%s\n", __func__);
 
@@ -3148,7 +3149,7 @@ int chip_power_off(int subsys)
 	return 0;
 }
 
-int gnss_powerdomain_open(void)
+static __maybe_unused int gnss_powerdomain_open(void)
 {
 	/* add by this. */
 	int ret = 0, retry_cnt = 0;
@@ -3205,7 +3206,7 @@ int gnss_powerdomain_open(void)
 	return 0;
 }
 
-int gnss_powerdomain_close(void)
+static int gnss_powerdomain_close(void)
 {
 	/* add by this. */
 	int ret = 0;
@@ -3644,7 +3645,7 @@ EXPORT_SYMBOL_GPL(marlin_set_sleep);
 /* Temporary modification for UWE5623:
  * cmd52 read/write timeout -110 issue.
  */
-void marlin_read_test_after_reset(void)
+static void marlin_read_test_after_reset(void)
 {
 	int ret;
 	unsigned int reg_addr = AON_APB_TEST_READ_REG, reg_val;
