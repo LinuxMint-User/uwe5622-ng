@@ -27,6 +27,8 @@
 #include <linux/sched/clock.h>
 #endif
 #include <wcn_bus.h>
+
+#include "compat.h"
 #ifdef CONFIG_WCN_PCIE
 #include "pcie.h"
 #endif
@@ -96,7 +98,7 @@ void mdbg_assert_interface(char *str)
 
 #if (CONFIG_CP2_ASSERT)
 	memset(mdbg_proc->assert.buf, 0, MDBG_ASSERT_SIZE);
-	strncpy(mdbg_proc->assert.buf, str, len);
+	wcn_strncpy(mdbg_proc->assert.buf, str, len);
 	WCN_INFO("mdbg_assert_interface:%s\n",
 		(char *)(mdbg_proc->assert.buf));
 

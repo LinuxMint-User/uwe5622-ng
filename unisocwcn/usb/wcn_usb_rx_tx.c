@@ -1,5 +1,6 @@
 #include "wcn_usb.h"
 #include "bus_common.h"
+#include "compat.h"
 #include <linux/kthread.h>
 #include <linux/completion.h>
 #include <linux/scatterlist.h>
@@ -1621,7 +1622,7 @@ static void start_loop_check(void)
 
 	udev = ep->intf->udev;
 	pipe = usb_sndbulkpipe(udev, endpoint->bEndpointAddress);
-	strncpy(buf, loop_check_cmd, strlen(loop_check_cmd));
+	wcn_strncpy(buf, loop_check_cmd, strlen(loop_check_cmd));
 	usb_fill_bulk_urb(urb, udev, pipe, buf, strlen(loop_check_cmd) + 1,
 				     loop_check_callback, buf);
 	if (usb_submit_urb(urb, GFP_KERNEL))

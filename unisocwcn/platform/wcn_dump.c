@@ -13,6 +13,7 @@
 #include <marlin_platform.h>
 #include <wcn_bus.h>
 
+#include "compat.h"
 #include "bufring.h"
 #include "rdc_debug.h"
 #include "wcn_txrx.h"
@@ -471,9 +472,9 @@ static int wcn_fill_dump_head_info(struct wcn_dump_mem_reg *mem_cfg, int cnt)
 		return -1;
 	}
 
-	strncpy(head->version, WCN_DUMP_VERSION_NAME,
+	wcn_strncpy(head->version, WCN_DUMP_VERSION_NAME,
 		strlen(WCN_DUMP_VERSION_NAME));
-	strncpy(head->sub_version, WCN_DUMP_VERSION_SUB_NAME,
+	wcn_strncpy(head->sub_version, WCN_DUMP_VERSION_SUB_NAME,
 		strlen(WCN_DUMP_VERSION_SUB_NAME));
 	head->n_sec = cpu_to_le32(cnt);
 	len = head_len;

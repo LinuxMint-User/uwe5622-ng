@@ -13,6 +13,7 @@
 #include "wcn_glb.h"
 #include "wcn_log.h"
 #include "wcn_misc.h"
+#include "compat.h"
 
 /* units is ms, 2500ms */
 #define WCN_DUMP_TIMEOUT 2500
@@ -150,9 +151,9 @@ static int wcn_fill_dump_head_info(struct wcn_dump_mem_reg *mem_cfg, int cnt)
 		return -1;
 	}
 
-	strncpy(head->version, WCN_DUMP_VERSION_NAME,
+	wcn_strncpy(head->version, WCN_DUMP_VERSION_NAME,
 		strlen(WCN_DUMP_VERSION_NAME)+1);
-	strncpy(head->sub_version, WCN_DUMP_VERSION_SUB_NAME,
+	wcn_strncpy(head->sub_version, WCN_DUMP_VERSION_SUB_NAME,
 		strlen(WCN_DUMP_VERSION_SUB_NAME)+1);
 	head->n_sec = cpu_to_le32(cnt);
 	len = head_len;

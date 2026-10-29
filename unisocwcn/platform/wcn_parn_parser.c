@@ -35,6 +35,7 @@
 #include <linux/vmalloc.h>
 #include <linux/version.h>
 
+#include "compat.h"
 #include "mdbg_type.h"
 #include "wcn_parn_parser.h"
 
@@ -184,7 +185,7 @@ int parse_firmware_path(char *firmware_path)
 			continue;
 		}
 		memset(fstab_name, 0, sizeof(fstab_name));
-		strncpy(fstab_name, fstab_dir[loop], sizeof(fstab_name));
+		wcn_strncpy(fstab_name, fstab_dir[loop], sizeof(fstab_name));
 		if (strlen(fstab_name) > 1)
 			fstab_name[strlen(fstab_name)] = '/';
 		iterate_dir(file1, &ctx);
