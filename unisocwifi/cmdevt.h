@@ -619,7 +619,7 @@ struct sprdwl_cmd_tdls {
 	u8 initiator;
 	u8 rsvd;
 	u8 paylen;
-	u8 payload[0];
+	u8 payload[];
 } __packed;
 
 struct sprdwl_cmd_blacklist {
@@ -778,7 +778,7 @@ struct sprdwl_event_tdls {
 struct sprd_cmd_gscan_header {
 	u16 subcmd;
 	u16 data_len;
-	u8 data[0];
+	u8 data[];
 } __packed;
 
 struct sprdwl_llc_hdr {
