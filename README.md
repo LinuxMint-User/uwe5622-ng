@@ -19,8 +19,34 @@ Unisoc（展锐）UWE5622 / AW859A 无线芯片的 WiFi + 蓝牙驱动，**树�
 | `6.18.0`（LTS） | 同上 |
 
 - **零内核补丁**：全部为树外模块，不修改内核源码，也不需要重新编译内核镜像。
-- 与内核的 API 差异全部集中在 `compat.h`，业务代码里不出现版本判断。
+- 新内核的 API 差异优先收进 `compat.h`（用类型别名抹平签名，而不是按版本复制整个函数）；
+  厂商遗留的旧版本判断仍散落在业务代码里，暂未清理。
 - 平台差异集中在 `unisocwcn/platform/`，其余代码不依赖具体板子。
+
+## 与 Armbian 版本的区别
+
+Armbian 也在维护同一份驱动：[armbian/uwe5622](https://github.com/armbian/uwe5622)。两者同源
+（他们从 `uwe5622-allwinner-v6.3.patch` 起步，本仓库从 Orange Pi 的 6.1 厂商树起步），
+213 个文件里 119 个逐字节相同，实质差异约 3.7k 行（占 1.8%）。区别在工程取向，不在驱动功能：
+
+| | Armbian | 本仓库 |
+|---|---|---|
+| 重心 | 覆盖面：Armbian 构建系统内的多块板，Allwinner + Rockchip，6.1 ~ 7.3 | 深度：单板实测，`6.18.0` / `7.2.13` |
+| 验证方式 | CI 只编译 | 上板跑 WiFi 关联、蓝牙 inquiry、冷启动 |
+| 7.x API 适配 | 按版本复制整个函数（`#if` 分叉） | `compat.h` 用类型别名抹平签名，函数只写一份 |
+| `KERNEL_VERSION` 判断 | 312 处 | 214 处（含尚未清理的厂商遗留） |
+| MAC 地址 | 无 `addr_mgt` 等价物 | `addr_mgt/` 从 DT `serial-number` 派生，每板唯一 |
+| 固件加载 | 保留 `filp_open`，额外加 `wcn_fs.h` 处理 7.3 kthread 根目录变化 | 改用 `request_firmware()` |
+| 蓝牙 park-link | 只有存档的内核补丁，当前树未应用 | 零内核补丁，改 ini 一个字节 |
+| DKMS | `CLEAN=` 已弃用；只装 3 个模块 | 4 个模块全装，`MAKE[0]` 显式置空 `CROSS_COMPILE` |
+| 固件目录 | `/lib/firmware/uwe5622/` 优先 | `/lib/firmware/` |
+
+怎么选：
+
+- 在 Armbian 发行版内用、需要 Rockchip 板、或者要更老/更新的内核 → 用 Armbian 那份。
+- 自己的发行版、需要 MAC 管理、需要零内核补丁、要在 7.2.13 上有实测证据 → 用本仓库。
+
+两边面向的系统不同，会各自继续演进，不计划合并。
 
 ## 依赖
 
