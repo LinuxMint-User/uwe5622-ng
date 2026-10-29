@@ -99,8 +99,11 @@ grep -E 'CONFIG_NLS_(ISO8859_1|UTF8|CODEPAGE_437)' /boot/config-<版本>
 
 ```sh
 cd <内核源码树>
-patch -p1 --dry-run < /path/to/board/zero3-dt.patch
+patch -p1 --dry-run < /path/to/zero3-dt.patch
 ```
+
+补丁见 [orangepi-zero-3-dtb-neo](https://github.com/LinuxMint-User/orangepi-zero-3-dtb-neo) 的
+`patches/zero3-dt.patch`。
 
 判据：只有 `checking file ...`，没有 fuzz 或失败。
 若上游改了同一位置，按新结构手工合并，不要用 `--force` 硬打。
