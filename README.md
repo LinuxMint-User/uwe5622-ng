@@ -50,6 +50,18 @@ make KDIR=/path/to/linux-7.2.13 \
 产物（`.ko`）落在各模块子目录下。`BUILDROOT` / `BUILDSRC` 可覆盖：Kbuild 不接受含空格的模块路径，
 顶层 Makefile 会先把源码镜像到无空格的 `BUILDSRC` 再编译。
 
+### 编译矩阵
+
+一次编多个内核版本，用于确认 `compat.h` 的改动没有在某个版本上回归：
+
+```sh
+./scripts/build-matrix.sh                       # 默认编 BUILDROOT 下的 6.18 与 7.2.13
+./scripts/build-matrix.sh /path/A /path/B       # 指定内核构建树
+```
+
+每棵树先 `clean` 再编，最后输出 PASS/FAIL 与各模块的大小和 vermagic；任一失败时退出码为 1，
+失败日志留在 `/tmp/uwe5622-matrix-<内核树名>.log`。
+
 ### 原生编译（目标机，DKMS）
 
 ```sh
