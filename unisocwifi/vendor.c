@@ -448,12 +448,13 @@ static int sprdwl_vendor_get_llstat_handler(struct wiphy *wiphy,
 						const void *data, int len)
 {
 	struct sk_buff *reply_radio, *reply_iface;
-	struct sprdwl_llstat_data *llst;
+	struct sprdwl_llstat_data llst_buf;
+	struct sprdwl_llstat_data *llst = &llst_buf;
 	struct wifi_radio_stat *radio_st;
 	struct wifi_iface_stat *iface_st;
 	struct sprdwl_llstat_radio *dif_radio;
-	u16 r_len = sizeof(*llst);
-	u8 r_buf[r_len], ret, i;
+	u16 r_len = sizeof(llst_buf);
+	u8 ret, i;
 	u32 reply_radio_length, reply_iface_length;
 
 	struct sprdwl_priv *priv = wiphy_priv(wiphy);
@@ -466,7 +467,7 @@ static int sprdwl_vendor_get_llstat_handler(struct wiphy *wiphy,
 		return -EIO;
 	if (!(priv->fw_capa & SPRDWL_CAPA_LL_STATS))
 		return -ENOTSUPP;
-	memset(r_buf, 0, r_len);
+	memset(&llst_buf, 0, sizeof(llst_buf));
 	radio_st = kzalloc(sizeof(*radio_st), GFP_KERNEL);
 	iface_st = kzalloc(sizeof(*iface_st), GFP_KERNEL);
 	dif_radio = kzalloc(sizeof(*dif_radio), GFP_KERNEL);
@@ -474,11 +475,9 @@ static int sprdwl_vendor_get_llstat_handler(struct wiphy *wiphy,
 	if (!radio_st || !iface_st || !dif_radio)
 		goto out_put_fail;
 	ret = sprdwl_llstat(priv, vif->ctx_id, SPRDWL_SUBCMD_GET, NULL, 0,
-				r_buf, &r_len);
+				(u8 *)&llst_buf, &r_len);
 	if (ret)
 		goto out_put_fail;
-
-	llst = (struct sprdwl_llstat_data *)r_buf;
 
 	calc_radio_dif(dif_radio, llst, &priv->pre_radio);
 
@@ -573,9 +572,8 @@ static int sprdwl_vendor_clr_llstat_handler(struct wiphy *wiphy,
 	struct sk_buff *reply;
 	struct wifi_clr_llstat_rsp clr_rsp;
 	struct nlattr *tb[SPRDWL_LL_STATS_CLR_MAX + 1];
-	u32 *stats_clear_rsp_mask, stats_clear_req_mask = 0;
-	u16 r_len = sizeof(*stats_clear_rsp_mask);
-	u8 r_buf[r_len];
+	u32 stats_clear_req_mask = 0, rsp_mask = 0;
+	u16 r_len = sizeof(rsp_mask);
 	u32 reply_length, ret, err;
 
 	struct sprdwl_priv *priv = wiphy_priv(wiphy);
@@ -583,7 +581,6 @@ static int sprdwl_vendor_clr_llstat_handler(struct wiphy *wiphy,
 
 	if (!(priv->fw_capa & SPRDWL_CAPA_LL_STATS))
 		return -ENOTSUPP;
-	memset(r_buf, 0, r_len);
 	if (!data) {
 		wl_err("%s wrong llstat clear req mask\n", __func__);
 		return -EINVAL;
@@ -603,9 +600,9 @@ static int sprdwl_vendor_clr_llstat_handler(struct wiphy *wiphy,
 	}
 	wiphy_info(wiphy, "stats_clear_req_mask = %u\n", stats_clear_req_mask);
 	ret = sprdwl_llstat(priv, vif->ctx_id, SPRDWL_SUBCMD_DEL,
-				&stats_clear_req_mask, r_len, r_buf, &r_len);
-	stats_clear_rsp_mask = (u32 *)r_buf;
-	clr_rsp.stats_clear_rsp_mask = *stats_clear_rsp_mask;
+				&stats_clear_req_mask, r_len, (u8 *)&rsp_mask,
+				&r_len);
+	clr_rsp.stats_clear_rsp_mask = rsp_mask;
 	clr_rsp.stop_rsp = 1;
 
 	reply_length = sizeof(clr_rsp) + 100;

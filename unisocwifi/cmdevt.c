@@ -3718,9 +3718,8 @@ int sprdwl_set_packet_offload(struct sprdwl_priv *priv, u8 vif_ctx_id,
 {
 	struct sprdwl_msg_buf *msg;
 	struct sprdwl_cmd_packet_offload *p;
-	struct sprdwl_cmd_packet_offload *packet = NULL;
-	u16 r_len = sizeof(*packet);
-	u8 r_buf[r_len];
+	struct sprdwl_cmd_packet_offload rsp;
+	u16 r_len = sizeof(rsp);
 
 	msg = sprdwl_cmd_getbuf(priv, sizeof(*p) + len, vif_ctx_id,
 				SPRDWL_HEAD_RSP, WIFI_CMD_PACKET_OFFLOAD);
@@ -3736,5 +3735,6 @@ int sprdwl_set_packet_offload(struct sprdwl_priv *priv, u8 vif_ctx_id,
 		memcpy(p->data, data, len);
 	}
 
-	return sprdwl_cmd_send_recv(priv, msg, CMD_WAIT_TIMEOUT, r_buf, &r_len);
+	return sprdwl_cmd_send_recv(priv, msg, CMD_WAIT_TIMEOUT,
+				    (u8 *)&rsp, &r_len);
 }
