@@ -98,7 +98,12 @@ unisocwifi/      WiFi
 tty-sdio/        蓝牙传输
 addr_mgt/        MAC 地址管理
 scripts/         构建、部署、验证脚本
+docs/            文档（移植到新内核的检查清单）
 ```
+
+## 移植到新内核
+
+升级到更新的主线内核时，按 [docs/porting.md](docs/porting.md) 的清单逐项执行。
 
 ## 已知限制
 
