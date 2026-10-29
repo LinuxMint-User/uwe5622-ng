@@ -72,6 +72,10 @@ struct mtty_device {
 
 	/* mtty state */
 	atomic_t state;
+	/* number of open files: the tty core calls close once per file, even
+	 * when other references to the same tty are still open.
+	 */
+	atomic_t open_count;
 	/*spinlock_t    rw_lock;*/
 	struct mutex    rw_mutex;
 	struct list_head rx_head;
@@ -239,16 +243,20 @@ static void mtty_rx_work_queue(struct work_struct *work)
 
 			pr_err("mtty over load working at channel: %d, len: %d\n",
 					rx->channel, rx->head->len);
+			/* tty_insert_flip_char() returns 0 once the port buffer is
+			 * full or the tty is gone.  Retrying the same byte there
+			 * spins forever, and flush_workqueue() in mtty_remove()
+			 * then hangs the whole box on rmmod.  Drop the rest of
+			 * this packet instead.
+			 */
 			for (i = 0; i < rx->head->len; i++) {
 				ret = tty_insert_flip_char(mtty->port,
 						*(rx->head->buf+i), TTY_NORMAL);
-				if (ret != 1) {
-					i--;
-					continue;
-				} else {
-					tty_flip_buffer_push(mtty->port);
-				}
+				if (ret != 1)
+					break;
 			}
+			if (i)
+				tty_flip_buffer_push(mtty->port);
 			pr_err("mtty over load cut channel: %d\n", rx->channel);
 			kfree(rx->head->buf);
 			kfree(rx);
@@ -364,8 +372,7 @@ static int mtty_open(struct tty_struct *tty, struct file *filp)
 {
 	struct mtty_device *mtty = NULL;
 	struct tty_driver *driver = NULL;
-	data_dump = (bt_host_data_dump *)vmalloc(sizeof(bt_host_data_dump));
-	memset(data_dump, 0, sizeof(bt_host_data_dump));
+
 	if (tty == NULL) {
 		pr_err("mtty open input tty is NULL!\n");
 		return -ENOMEM;
@@ -378,6 +385,20 @@ static int mtty_open(struct tty_struct *tty, struct file *filp)
 		return -ENOMEM;
 	}
 
+	/* Another file already holds this tty.  Re-running sitm_ini() here would
+	 * replace the parser state that owner is using (it parsed a truncated
+	 * event right in the middle of the vendor's init sequence), so only the
+	 * first open sets things up.
+	 */
+	if (atomic_inc_return(&mtty->open_count) > 1) {
+		pr_info("mtty_open again by %s, count=%d\n", current->comm,
+			atomic_read(&mtty->open_count));
+		return 0;
+	}
+
+	data_dump = (bt_host_data_dump *)vmalloc(sizeof(bt_host_data_dump));
+	memset(data_dump, 0, sizeof(bt_host_data_dump));
+
 	mtty->tty = tty;
 	tty->driver_data = (void *)mtty;
 
@@ -385,7 +406,7 @@ static int mtty_open(struct tty_struct *tty, struct file *filp)
 	que_task = 0;
 	que_sche = 0;
 	sitm_ini();
-	pr_info("mtty_open device success!\n");
+	pr_info("mtty_open device success by %s!\n", current->comm);
 	return 0;
 }
 
@@ -403,6 +424,18 @@ static void mtty_close(struct tty_struct *tty, struct file *filp)
 		return;
 	}
 
+	/* Only the last close may tear the parser down: hciattach_opi keeps
+	 * writing after some other opener has closed its file, and a dead
+	 * parser makes sitm_write() drop every packet without telling anybody,
+	 * which showed up as "hci0: command 0x1003 tx timeout".
+	 */
+	if (atomic_add_unless(&mtty->open_count, -1, 0) &&
+	    atomic_read(&mtty->open_count) > 0) {
+		pr_info("mtty_close by %s, %d still open\n", current->comm,
+			atomic_read(&mtty->open_count));
+		return;
+	}
+
 	atomic_set(&mtty->state, MTTY_STATE_CLOSE);
 	sitm_cleanup();
 
@@ -410,7 +443,7 @@ static void mtty_close(struct tty_struct *tty, struct file *filp)
 		vfree(data_dump);
 		data_dump = NULL;
 	}
-	pr_info("mtty_close device success !\n");
+	pr_info("mtty_close device success by %s !\n", current->comm);
 }
 
 static int mtty_write(struct tty_struct *tty,
@@ -680,6 +713,7 @@ static int  mtty_probe(struct platform_device *pdev)
 
 	/*spin_lock_init(&mtty->rw_lock);*/
 	atomic_set(&mtty->state, MTTY_STATE_CLOSE);
+	atomic_set(&mtty->open_count, 0);
 	mutex_init(&mtty->rw_mutex);
 	INIT_LIST_HEAD(&mtty->rx_head);
 	/*tasklet_init(&mtty->rx_task, mtty_rx_task, (unsigned long)mtty);*/
