@@ -11,7 +11,7 @@
 set -uo pipefail
 
 repo=$(cd "$(dirname "$0")/.." && pwd)
-BUILDROOT=${BUILDROOT:-/home/echan/.cache/uwe5622-build}
+BUILDROOT=${BUILDROOT:-$HOME/.cache/uwe5622-build}
 BUILDSRC="$BUILDROOT/src/uwe5622-ng"
 
 kernels=("$@")

@@ -15,10 +15,10 @@
 .DEFAULT_GOAL := all
 
 SRC ?= $(CURDIR)
-BUILDROOT ?= /home/echan/.cache/uwe5622-build
+BUILDROOT ?= $(HOME)/.cache/uwe5622-build
 BUILDSRC ?= $(BUILDROOT)/src/uwe5622-ng
 
-KDIR ?= $(BUILDROOT)/linux-6.18
+KDIR ?= $(BUILDROOT)/linux-6.18-zero3-src
 ARCH ?= arm64
 CROSS_COMPILE ?= aarch64-linux-gnu-
 JOBS ?= 12
