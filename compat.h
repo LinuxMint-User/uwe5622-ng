@@ -14,8 +14,31 @@
 #include <linux/gpio.h>
 #include <linux/of.h>
 #include <linux/pm_wakeup.h>
+#include <linux/string.h>
 #include <linux/timer.h>
 #include <linux/types.h>
+
+/* ---- strncpy() --------------------------------------------------------- */
+/*
+ * 7.2 dropped strncpy() from linux/string.h (only the strscpy family is
+ * left).  Several callers rely on POSIX semantics, i.e. the tail of a
+ * fixed-size field being zero-filled, so keep them instead of rewriting
+ * every site to strscpy().
+ */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 2, 0)
+static inline char *wcn_strncpy(char *dest, const char *src, size_t count)
+{
+	size_t len = strnlen(src, count);
+
+	memcpy(dest, src, len);
+	if (len < count)
+		memset(dest + len, 0, count - len);
+
+	return dest;
+}
+#else
+#define wcn_strncpy(dest, src, count)	strncpy((dest), (src), (count))
+#endif
 
 /* ---- class_create() ---------------------------------------------------- */
 /* v6.4 removed the struct module *owner argument. */
@@ -53,6 +76,39 @@ typedef const struct class_attribute wcn_class_attr_t;
 #define wcn_wakeup_source_destroy(ws)	wakeup_source_unregister(ws)
 #endif
 
+/* ---- of_get_named_gpio() ----------------------------------------------- */
+/*
+ * 7.2 removed linux/of_gpio.h and of_get_named_gpio() together with the rest
+ * of the legacy integer-base OF lookup.  The driver still tracks plain GPIO
+ * numbers, so resolve the line through the descriptor based API and hand the
+ * number back after dropping the temporary descriptor; the number stays
+ * valid for the later gpio_request()/gpio_direction_*() calls.
+ */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 2, 0)
+#include <linux/gpio/consumer.h>
+
+static inline int wcn_of_get_named_gpio(const struct device_node *np,
+					const char *propname, int index)
+{
+	struct gpio_desc *desc;
+	int gpio;
+
+	desc = fwnode_gpiod_get_index((struct fwnode_handle *)of_fwnode_handle(np),
+				      propname, index, GPIOD_ASIS, "uwe5622");
+	if (IS_ERR(desc))
+		return PTR_ERR(desc);
+
+	gpio = desc_to_gpio(desc);
+	gpiod_put(desc);
+
+	return gpio;
+}
+#else
+#include <linux/of_gpio.h>
+#define wcn_of_get_named_gpio(np, prop, idx)				\
+	of_get_named_gpio((np), (prop), (idx))
+#endif
+
 /* ---- of_get_named_gpio_flags() ----------------------------------------- */
 /*
  * Removed upstream.  of_get_named_gpio() cannot return the sunxi per-pin
@@ -66,7 +122,7 @@ typedef const struct class_attribute wcn_class_attr_t;
 #else
 #define wcn_of_get_named_gpio_flags(np, prop, idx, cfg)			\
 	({								\
-		int __wcn_gpio = of_get_named_gpio((np), (prop), (idx));\
+		int __wcn_gpio = wcn_of_get_named_gpio((np), (prop), (idx));\
 									\
 		(cfg)->gpio = (__wcn_gpio >= 0) ? (u32)__wcn_gpio : 0;	\
 		__wcn_gpio;						\
@@ -146,5 +202,31 @@ typedef size_t wcn_tty_write_len;
 	(LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0))
 #define WCN_CFG80211_TDLS_LINK_ID \
 	(LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0))
+
+/*
+ * 7.2 switched the key and station callbacks from struct net_device * to
+ * struct wireless_dev *, and the new_sta/del_sta notifications followed.
+ * remain_on_channel() also grew the target address.
+ */
+#define WCN_CFG80211_WDEV_OPS \
+	(LINUX_VERSION_CODE >= KERNEL_VERSION(7, 2, 0))
+
+#if WCN_CFG80211_WDEV_OPS
+#define wcn_cfg80211_arg_t		struct wireless_dev
+#define wcn_cfg80211_ndev(arg)		((arg)->netdev)
+#define wcn_cfg80211_new_sta(vif, addr, sinfo, gfp) \
+	cfg80211_new_sta(&(vif)->wdev, (addr), (sinfo), (gfp))
+#define wcn_cfg80211_del_sta(vif, addr, gfp) \
+	cfg80211_del_sta(&(vif)->wdev, (addr), (gfp))
+#define wcn_cfg80211_roc_addr_param	, const u8 *rx_addr
+#else
+#define wcn_cfg80211_arg_t		struct net_device
+#define wcn_cfg80211_ndev(arg)		(arg)
+#define wcn_cfg80211_new_sta(vif, addr, sinfo, gfp) \
+	cfg80211_new_sta((vif)->ndev, (addr), (sinfo), (gfp))
+#define wcn_cfg80211_del_sta(vif, addr, gfp) \
+	cfg80211_del_sta((vif)->ndev, (addr), (gfp))
+#define wcn_cfg80211_roc_addr_param
+#endif
 
 #endif /* __UWE5622_COMPAT_H */
