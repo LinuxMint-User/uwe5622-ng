@@ -19,7 +19,6 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/mfd/syscon.h>
-#include <linux/of_gpio.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 #include <linux/regulator/consumer.h>
@@ -1456,7 +1455,7 @@ static int marlin_parse_dt(struct platform_device *pdev)
 
 #if defined(CONFIG_WCN_PARSE_DTS) && defined(CONFIG_WCN_PMIC)
 	clk = &marlin_dev->clk_xtal_26m;
-	clk->gpio = of_get_named_gpio(np, "xtal-26m-clk-type-gpio", 0);
+	clk->gpio = wcn_of_get_named_gpio(np, "xtal-26m-clk-type-gpio", 0);
 	if (!gpio_is_valid(clk->gpio))
 		WCN_INFO("xtal-26m-clk gpio not config\n");
 
@@ -1540,7 +1539,7 @@ static int marlin_parse_dt(struct platform_device *pdev)
 #endif /* end of CONFIG_WCN_PARSE_DTS and CONFIG_WCN_PMIC */
 
 #ifdef CONFIG_WCN_PARSE_DTS
-	marlin_dev->chip_en = of_get_named_gpio(np, "wl-reg-on", 0);
+	marlin_dev->chip_en = wcn_of_get_named_gpio(np, "wl-reg-on", 0);
 #else
 	marlin_dev->chip_en = 0;
 #endif
@@ -1561,7 +1560,7 @@ static int marlin_parse_dt(struct platform_device *pdev)
 	}
 
 #ifdef CONFIG_WCN_PARSE_DTS
-	marlin_dev->reset = of_get_named_gpio(np, "bt-reg-on", 0);
+	marlin_dev->reset = wcn_of_get_named_gpio(np, "bt-reg-on", 0);
 #else
 	marlin_dev->reset = 0;
 #endif
@@ -1581,7 +1580,7 @@ static int marlin_parse_dt(struct platform_device *pdev)
 	}
 
 #ifdef CONFIG_WCN_PARSE_DTS
-	marlin_dev->int_ap = of_get_named_gpio(np, "pub-int-gpio", 0);
+	marlin_dev->int_ap = wcn_of_get_named_gpio(np, "pub-int-gpio", 0);
 #else
 	marlin_dev->int_ap = 0;
 #endif
@@ -1650,7 +1649,7 @@ static int marlin_parse_dt(struct platform_device *pdev)
 		WCN_INFO("wcn config bt wake host\n");
 		marlin_dev->bt_wl_wake_host_en |= BIT(BT_WAKE_HOST);
 		bt_wake_host_gpio =
-			of_get_named_gpio(np, "bt-wake-host-gpio", 0);
+			wcn_of_get_named_gpio(np, "bt-wake-host-gpio", 0);
 		WCN_INFO("%s bt-wake-host-gpio=%d\n", __func__,
 			 bt_wake_host_gpio);
 		if (!gpio_is_valid(bt_wake_host_gpio)) {
@@ -1682,7 +1681,7 @@ static int marlin_parse_dt(struct platform_device *pdev)
 		WCN_INFO("wcn config wifi wake host\n");
 		marlin_dev->bt_wl_wake_host_en |= BIT(WL_WAKE_HOST);
 		wl_wake_host_gpio =
-			of_get_named_gpio(np, "wl-wake-host-gpio", 0);
+			wcn_of_get_named_gpio(np, "wl-wake-host-gpio", 0);
 		WCN_INFO("%s wl-wake-host-gpio=%d\n", __func__,
 			 wl_wake_host_gpio);
 		if (!gpio_is_valid(wl_wake_host_gpio)) {

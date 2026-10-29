@@ -24,13 +24,14 @@
 #include <linux/kthread.h>
 #include <linux/module.h>
 #include <linux/of.h>
-#include <linux/of_gpio.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 #include <linux/spinlock.h>
 #include <linux/version.h>
 //#include <linux/wakelock.h>
 #include <wcn_bus.h>
+
+#include "compat.h"
 #include "../sdio/sdiohal.h"
 #include "slp_mgr.h"
 #include "slp_sdio.h"

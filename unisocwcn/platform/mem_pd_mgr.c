@@ -23,13 +23,14 @@
 #include <linux/kthread.h>
 #include <linux/module.h>
 #include <linux/of.h>
-#include <linux/of_gpio.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <marlin_platform.h>
 #include <wcn_bus.h>
+
+#include "compat.h"
 
 #include "mem_pd_mgr.h"
 #include "wcn_glb_reg.h"

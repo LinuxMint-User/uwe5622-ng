@@ -4,7 +4,6 @@
 #include <linux/irq.h>
 #include <linux/kthread.h>
 #include <linux/mmc/host.h>
-#include <linux/of_gpio.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
 #include <linux/version.h>
@@ -12,6 +11,7 @@
 #include <linux/ktime.h>
 #include <wcn_bus.h>
 
+#include "compat.h"
 #include "sdiohal.h"
 
 /*
@@ -752,7 +752,7 @@ static int sdiohal_test_int_init(unsigned char func_tag)
 		sdiohal_err("dts node not found");
 		return -1;
 	}
-	pub_gpio_num = of_get_named_gpio(np, "int-gpio", 0);
+	pub_gpio_num = wcn_of_get_named_gpio(np, "int-gpio", 0);
 #endif
 	sdiohal_info("pub_gpio_num:%d\n", pub_gpio_num);
 	ret = gpio_request(pub_gpio_num, "sdiohal_int_gpio");

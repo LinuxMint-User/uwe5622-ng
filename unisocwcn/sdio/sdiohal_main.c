@@ -22,7 +22,6 @@
 #include <linux/kthread.h>
 #include <linux/module.h>
 #include <linux/of_device.h>
-#include <linux/of_gpio.h>
 #include <linux/pm_runtime.h>
 #include <linux/mmc/card.h>
 #include <linux/mmc/core.h>
@@ -30,6 +29,7 @@
 #include <linux/mmc/sdio.h>
 #include <linux/mmc/sdio_func.h>
 
+#include "compat.h"
 #include "bus_common.h"
 #include "sdiohal.h"
 #include "wcn_glb.h"
@@ -1351,7 +1351,7 @@ static int sdiohal_parse_dt(void)
 	else {
 		p_data->irq_type = SDIOHAL_RX_EXTERNAL_IRQ;
 		p_data->gpio_num =
-			of_get_named_gpio(np, "sdio-ext-int-gpio", 0);
+			wcn_of_get_named_gpio(np, "sdio-ext-int-gpio", 0);
 		if (!gpio_is_valid(p_data->gpio_num)) {
 			sdiohal_err("can not get sdio int gpio%d\n",
 				    p_data->gpio_num);
