@@ -703,11 +703,13 @@ static int sprdwl_add_cipher_key(struct sprdwl_vif *vif, bool pairwise,
 	return ret;
 }
 
-static int sprdwl_cfg80211_add_key(struct wiphy *wiphy, struct net_device *ndev,
+static int sprdwl_cfg80211_add_key(struct wiphy *wiphy,
+				   wcn_cfg80211_arg_t *dev,
 				   int link_id, u8 key_index, bool pairwise,
 				   const u8 *mac_addr,
 				   struct key_params *params)
 {
+	struct net_device *ndev = wcn_cfg80211_ndev(dev);
 	struct sprdwl_vif *vif = netdev_priv(ndev);
 
 	vif->key_index[pairwise] = key_index;
@@ -728,10 +730,12 @@ static int sprdwl_cfg80211_add_key(struct wiphy *wiphy, struct net_device *ndev,
 						 mac_addr);
 }
 
-static int sprdwl_cfg80211_del_key(struct wiphy *wiphy, struct net_device *ndev,
+static int sprdwl_cfg80211_del_key(struct wiphy *wiphy,
+				   wcn_cfg80211_arg_t *dev,
 				   int link_id, u8 key_index, bool pairwise,
 				   const u8 *mac_addr)
 {
+	struct net_device *ndev = wcn_cfg80211_ndev(dev);
 	struct sprdwl_vif *vif = netdev_priv(ndev);
 
 	//wl_ndev_log(L_DBG, ndev, "%s key_index=%d, pairwise=%d\n",
@@ -854,7 +858,7 @@ static int sprdwl_cfg80211_start_ap(struct wiphy *wiphy,
 		wl_ndev_log(L_ERR, ndev, "%s invalid SSID!\n", __func__);
 		return -EINVAL;
 	}
-	strncpy(vif->ssid, settings->ssid, settings->ssid_len);
+	wcn_strncpy(vif->ssid, settings->ssid, settings->ssid_len);
 	vif->ssid_len = settings->ssid_len;
 
 #ifdef STA_SOFTAP_SCC_MODE
@@ -925,7 +929,7 @@ static int sprdwl_cfg80211_start_ap(struct wiphy *wiphy,
 	*(data + index) = (u8)(settings->ssid_len + 1);
 	index += 1;
 	/* copy ssid */
-	strncpy(data + index, settings->ssid, settings->ssid_len);
+	wcn_strncpy(data + index, settings->ssid, settings->ssid_len);
 	index += settings->ssid_len;
 	/* set hidden ssid flag */
 	*(data + index) = (u8)settings->hidden_ssid;
@@ -1015,14 +1019,14 @@ static int sprdwl_cfg80211_stop_ap(struct wiphy *wiphy, struct net_device *ndev)
 }
 
 static int sprdwl_cfg80211_add_station(struct wiphy *wiphy,
-					   struct net_device *ndev, const u8 *mac,
+					   wcn_cfg80211_arg_t *dev, const u8 *mac,
 					   struct station_parameters *params)
 {
 	return 0;
 }
 
 static int sprdwl_cfg80211_del_station(struct wiphy *wiphy,
-					   struct net_device *ndev,
+					   wcn_cfg80211_arg_t *dev,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 83)
 					   struct station_del_parameters *params
 #else
@@ -1031,6 +1035,7 @@ static int sprdwl_cfg80211_del_station(struct wiphy *wiphy,
 					)
 
 {
+	struct net_device *ndev = wcn_cfg80211_ndev(dev);
 	struct sprdwl_vif *vif = netdev_priv(ndev);
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 83)
 	if (!params->mac) {
@@ -1058,7 +1063,7 @@ out:
 
 static int
 sprdwl_cfg80211_change_station(struct wiphy *wiphy,
-				   struct net_device *ndev, const u8 *mac,
+				   wcn_cfg80211_arg_t *dev, const u8 *mac,
 				   struct station_parameters *params)
 {
 	return 0;
@@ -1066,9 +1071,10 @@ sprdwl_cfg80211_change_station(struct wiphy *wiphy,
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 83)
 static int sprdwl_cfg80211_get_station(struct wiphy *wiphy,
-					   struct net_device *ndev, const u8 *mac,
+					   wcn_cfg80211_arg_t *dev, const u8 *mac,
 					   struct station_info *sinfo)
 {
+	struct net_device *ndev = wcn_cfg80211_ndev(dev);
 	struct sprdwl_vif *vif = netdev_priv(ndev);
 	struct sprdwl_cmd_get_station sta;
 	struct sprdwl_rate_info *rate;
@@ -1138,9 +1144,10 @@ out:
 
 #else
 static int sprdwl_cfg80211_get_station(struct wiphy *wiphy,
-					   struct net_device *ndev, const u8 *mac,
+					   wcn_cfg80211_arg_t *dev, const u8 *mac,
 					   struct station_info *sinfo)
 {
+	struct net_device *ndev = wcn_cfg80211_ndev(dev);
 	struct sprdwl_vif *vif = netdev_priv(ndev);
 	struct sprdwl_cmd_get_station sta;
 	struct sprdwl_rate_info *rate;
@@ -1228,10 +1235,10 @@ void sprdwl_report_softap(struct sprdwl_vif *vif, u8 is_connect, u8 *addr,
 			netif_carrier_on(vif->ndev);
 			netif_wake_queue(vif->ndev);
 		}
-		cfg80211_new_sta(vif->ndev, addr, &sinfo, GFP_KERNEL);
+		wcn_cfg80211_new_sta(vif, addr, &sinfo, GFP_KERNEL);
 		wl_ndev_log(L_DBG, vif->ndev, "New station (%pM) connected\n", addr);
 	} else {
-		cfg80211_del_sta(vif->ndev, addr, GFP_KERNEL);
+		wcn_cfg80211_del_sta(vif, addr, GFP_KERNEL);
 		wl_ndev_log(L_DBG, vif->ndev, "The station (%pM) disconnected\n",
 				addr);
 		trace_deauth_reason(vif->mode, 0, REMOTE_EVENT);
@@ -1543,7 +1550,7 @@ static int sprdwl_cfg80211_scan(struct wiphy *wiphy,
 			if (!ssids[i].ssid_len)
 				continue;
 			scan_ssids->len = ssids[i].ssid_len;
-			strncpy(scan_ssids->ssid, ssids[i].ssid,
+			wcn_strncpy(scan_ssids->ssid, ssids[i].ssid,
 				ssids[i].ssid_len);
 			scan_ssids_len += (ssids[i].ssid_len
 					   + sizeof(scan_ssids->len));
@@ -2018,7 +2025,7 @@ static int sprdwl_cfg80211_connect(struct wiphy *wiphy, struct net_device *ndev,
 	if (!sme->ssid) {
 		wl_ndev_log(L_DBG, ndev, "No SSID specified!\n");
 	} else {
-		strncpy(con.ssid, sme->ssid, sme->ssid_len);
+		wcn_strncpy(con.ssid, sme->ssid, sme->ssid_len);
 		con.ssid_len = sme->ssid_len;
 		vif->sm_state = SPRDWL_CONNECTING;
 
@@ -2033,7 +2040,7 @@ static int sprdwl_cfg80211_connect(struct wiphy *wiphy, struct net_device *ndev,
 		ret = sprdwl_connect(vif->priv, vif->ctx_id, &con);
 		if (ret)
 			goto err;
-		strncpy(vif->ssid, sme->ssid, sme->ssid_len);
+		wcn_strncpy(vif->ssid, sme->ssid, sme->ssid_len);
 		vif->ssid_len = sme->ssid_len;
 		wl_ndev_log(L_DBG, ndev, "%s %s\n", __func__, vif->ssid);
 	}
@@ -2650,7 +2657,8 @@ void sprdwl_cfg80211_dump_frame_prot_info(int send, int freq,
 static int sprdwl_cfg80211_remain_on_channel(struct wiphy *wiphy,
 						 struct wireless_dev *wdev,
 						 struct ieee80211_channel *chan,
-						 unsigned int duration, u64 *cookie)
+						 unsigned int duration, u64 *cookie
+						 wcn_cfg80211_roc_addr_param)
 {
 	struct sprdwl_vif *vif = container_of(wdev, struct sprdwl_vif, wdev);
 	enum nl80211_channel_type channel_type = 0;
