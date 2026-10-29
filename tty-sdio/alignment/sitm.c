@@ -29,6 +29,8 @@ int sitm_ini(void)
 {
 	rd = kmalloc(sizeof(struct packet_receive_data_t),
 		GFP_KERNEL);
+	if (!rd)
+		return -ENOMEM;
 	memset(rd, 0, sizeof(struct packet_receive_data_t));
 	if (kfifo_alloc(&rd->fifo,
 		HCI_HAL_SERIAL_BUFFER_SIZE, GFP_KERNEL)) {
@@ -39,6 +41,13 @@ int sitm_ini(void)
 
 int sitm_cleanup(void)
 {
+	/* close can arrive without a matching open: the tty keeps its count
+	 * when a previous release died midway. rd is already NULL then, and
+	 * kfifo_free(&rd->fifo) would hand 0x10 to kfree() and oops.
+	 */
+	if (!rd)
+		return 0;
+
 	kfifo_free(&rd->fifo);
 	kfree(rd);
 	rd = NULL;
@@ -49,8 +58,10 @@ int sitm_cleanup(void)
 
 static int data_ready(uint8_t *buf, uint32_t count)
 {
-	int ret = kfifo_out(&rd->fifo, buf, count);
-	return ret;
+	if (!rd)
+		return 0;
+
+	return kfifo_out(&rd->fifo, buf, count);
 }
 
 void parse_frame(data_ready_cb data_ready, frame_complete_cb frame_complete)
